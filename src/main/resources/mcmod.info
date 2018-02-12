@@ -1,0 +1,16 @@
+[
+{
+  "modid": "wgblockreplacer",
+  "name": "WorldGen Block Replacer",
+  "description": "Allows you to replace a block in your world generation with another block.",
+  "version": "${version}",
+  "mcversion": "",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["The_Fireplace"],
+  "credits": "The_Fireplace for authoring",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
