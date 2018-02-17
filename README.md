@@ -1,7 +1,7 @@
 [WorldGen Block Replacer](https://minecraft.curseforge.com/projects/wg-block-replacer)
 ============================================================================
 
-[![Curse Forge](http://cf.way2muchnoise.eu/short_287321_downloads.svg)](https://minecraft.curseforge.com/projects/bedrock-replacer)
+[![Curse Forge](http://cf.way2muchnoise.eu/short_287321_downloads.svg)](https://minecraft.curseforge.com/projects/wg-block-replacer)
 
 [Issue Reporting](https://github.com/The-Fireplace/Block-Replacer/issues)
 ------------------------------------------------------------------
