@@ -32,9 +32,15 @@ public class WGBlockReplacer {
 		@Config.Comment("The block id to replace.")
 		@Config.LangKey("replaceblock")
 		public static String replaceblock = "minecraft:stone";
+		@Config.Comment(("The block meta to replace. Use -1 for the block's default state."))
+		@Config.LangKey("replaceblockmeta")
+		public static int replaceblockmeta = -1;
 		@Config.Comment("The block id to replace the block with.")
 		@Config.LangKey("replacewith")
 		public static String replacewith = "minecraft:stone";
+		@Config.Comment("The block meta for the replacement block. Use -1 for the block's default state.")
+		@Config.LangKey("replacewithmeta")
+		public static int replacewithmeta = -1;
 		@Config.Comment("Enables using blocks that might crash/lag the game if used to replace other blocks. Enable at your own risk.")
 		@Config.LangKey("riskyblocks")
 		public static boolean riskyblocks = false;

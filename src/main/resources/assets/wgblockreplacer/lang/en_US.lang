@@ -1,7 +1,11 @@
 replaceblock=Replace Block:
 replaceblock.tooltip=The block id to replace.
+replaceblockmeta=Replace Block Meta:
+replaceblockmeta.tooltip=The block meta to replace. Use -1 for the block's default state.
 replacewith=Replace Block With:
 replacewith.tooltip=The block id to replace the block with.
+replacewithmeta=Replacement Block Meta:
+replacewithmeta.tooltip=The block meta for the replacement block. Use -1 for the block's default state.
 riskyblocks=Enable Risky Blocks
 riskyblocks.tooltip=Enables using blocks that might crash/lag the game if used to replace another block. Enable at your own risk.
 dimension_list=Dimension List
