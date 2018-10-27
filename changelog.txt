@@ -1,2 +1,4 @@
-Added en_UD.lang
-Added the ability to specify meta to replace and meta to replace with.
+Added the ability to specify multiple blocks for replacement. Delete your old config.
+Added the ability to set a min and max y value for replacement
+Added a way to only replace blocks in certain biomes
+Added mod's CurseForge link to the mod info page
