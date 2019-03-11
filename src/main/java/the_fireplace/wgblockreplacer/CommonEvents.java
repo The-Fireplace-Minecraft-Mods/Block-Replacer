@@ -55,8 +55,6 @@ public class CommonEvents {
 					WGBlockReplacer.LOGGER.error("minYs length was %s, expected %s", minYs.length, maxLength);
 				if(maxYs.length < maxLength)
 					WGBlockReplacer.LOGGER.error("maxYs length was %s, expected %s", maxYs.length, maxLength);
-				if(biomeFilter.length < maxLength)
-					WGBlockReplacer.LOGGER.error("biomeFilter length was %s, expected %s", biomeFilter.length, maxLength);
 			}
 			if(preventLoadOnFailure)
 				ServerLifecycleHooks.getCurrentServer().stopServer();
