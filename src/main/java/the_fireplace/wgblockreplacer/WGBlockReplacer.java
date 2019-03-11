@@ -1,82 +1,132 @@
 package the_fireplace.wgblockreplacer;
 
 import net.minecraft.block.Block;
-import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import the_fireplace.wgblockreplacer.proxy.Common;
 
-@Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
+@Mod(WGBlockReplacer.MODID)
 public class WGBlockReplacer {
 	public static final String MODID = "wgblockreplacer";
-	public static final String MODNAME = "WorldGen Block Replacer";
 
-	@SidedProxy(clientSide = "the_fireplace.wgblockreplacer.proxy.Client", serverSide = "the_fireplace.wgblockreplacer.proxy.Common")
-	public static Common proxy;
+	public static Logger LOGGER = LogManager.getLogger(MODID);
 
-	public static Logger LOGGER;
-
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		LOGGER = event.getModLog();
+	public WGBlockReplacer() {
+		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, cfg.SERVER_SPEC);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverConfig);
 	}
 
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event) {
-		if(event.getSide().isClient())
-			proxy.initBlockList();
+	public void serverConfig(ModConfig.ModConfigEvent event) {
+		if (event.getConfig().getType() == ModConfig.Type.SERVER)
+			cfg.load();
 	}
 
 	public static boolean isBlockRisky(Block block) {
-		return !block.getDefaultState().isOpaqueCube() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState());
+		return !block.getDefaultState().needsRandomTick() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState());
 	}
 
-	@Config(modid = MODID)
-	public static class ConfigValues{
-		@Config.Comment("The block id to replace.")
-		@Config.LangKey("replaceblock")
-		public static String[] replaceblock = {"minecraft:stone"};
-		@Config.Comment(("The block meta to replace. Use -1 for the block's default state."))
-		@Config.LangKey("replaceblockmeta")
-		public static int[] replaceblockmeta = {-1};
-		@Config.Comment("The block id to replace the block with.")
-		@Config.LangKey("replacewith")
-		public static String[] replacewith = {"minecraft:stone"};
-		@Config.Comment("The block meta for the replacement block. Use -1 for the block's default state.")
-		@Config.LangKey("replacewithmeta")
-		public static int[] replacewithmeta = {-1};
-		@Config.Comment("Enables using blocks that might crash/lag the game if used to replace other blocks. Enable at your own risk.")
-		@Config.LangKey("riskyblocks")
-		public static boolean riskyblocks = false;
-		@Config.Comment("This is the Dimension Black/Whitelist. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
-		@Config.LangKey("dimension_list")
-		public static String[] dimension_list = {"*"};
-		@Config.Comment("What percentage of the blocks get replaced. 0.0D = 0%, 1.0D = 100%")
-		@Config.RangeDouble(min = 0.0D, max=1.0D)
-		@Config.LangKey("replacepercent")
-		public static double[] replacepercent = {1.0D};
-		@Config.Comment("Multiplies the block removal chance by the block's y-value.")
-		@Config.LangKey("multiplychance")
-		public static boolean[] multiplychance = {false};
-		@Config.Comment("The lowest Y value the block should be replaced at")
-		@Config.RangeInt(min=-1,max=256)
-		@Config.LangKey("miny")
-		public static int[] miny = {-1};
-		@Config.Comment("The highest Y value the block should be replaced at")
-		@Config.RangeInt(min=-1,max=256)
-		@Config.LangKey("maxy")
-		public static int[] maxy = {256};
-		@Config.Comment("This is the Biome Black/Whitelist. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
-		@Config.LangKey("biomefilter")
-		public static String[] biomefilter = {"*"};
-		@Config.Comment("Increase the precision of the biome filter. This may reduce performance.")
-		@Config.LangKey("biomeprecision")
-		public static boolean biomeprecision = true;
-		@Config.Comment("Prevent the world from loading if the mod is improperly configured. This is to prevent terrain from generating without the intended configuration.")
+	public static class cfg {
+		public static final ServerConfig SERVER;
+		public static final ForgeConfigSpec SERVER_SPEC;
+
+		static {
+			final Pair<ServerConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
+			SERVER_SPEC = specPair.getRight();
+			SERVER = specPair.getLeft();
+		}
+
+		public static String[] replaceBlocks = {"minecraft:stone"};
+		public static String[] replacements = {"minecraft:stone"};
+		public static boolean allowRiskyReplacements = false;
+		public static String[] dimensionFilter = {"*"};
+		public static double[] replacePercents = {1.0D};
+		public static boolean[] multiplyChances = {false};
+		public static int[] minYs = {-1};
+		public static int[] maxYs = {256};
+		public static String[] biomeFilter = {"*"};
+		public static boolean biomeFilterPrecision = true;
 		public static boolean preventLoadOnFailure = true;
+
+		public static void load() {
+			replaceBlocks = SERVER.replaceBlocks.get();
+			replacements = SERVER.replacements.get();
+			allowRiskyReplacements = SERVER.allowRiskyReplacements.get();
+			dimensionFilter = SERVER.dimensionFilter.get();
+			replacePercents = SERVER.replacePercents.get();
+			multiplyChances = SERVER.multiplyChances.get();
+			minYs = SERVER.minYs.get();
+			maxYs = SERVER.maxYs.get();
+			biomeFilter = SERVER.biomeFilter.get();
+			biomeFilterPrecision = SERVER.biomeFilterPrecision.get();
+			preventLoadOnFailure = SERVER.preventLoadOnFailure.get();
+		}
+
+		public static class ServerConfig {
+			public ForgeConfigSpec.ConfigValue<String[]> replaceBlocks;
+			public ForgeConfigSpec.ConfigValue<String[]> replacements;
+			public ForgeConfigSpec.BooleanValue allowRiskyReplacements;
+			public ForgeConfigSpec.ConfigValue<String[]> dimensionFilter;
+			public ForgeConfigSpec.ConfigValue<double[]> replacePercents;
+			public ForgeConfigSpec.ConfigValue<boolean[]> multiplyChances;
+			public ForgeConfigSpec.ConfigValue<int[]> minYs;
+			public ForgeConfigSpec.ConfigValue<int[]> maxYs;
+			public ForgeConfigSpec.ConfigValue<String[]> biomeFilter;
+			public ForgeConfigSpec.BooleanValue biomeFilterPrecision;
+			public ForgeConfigSpec.BooleanValue preventLoadOnFailure;
+
+			ServerConfig(ForgeConfigSpec.Builder builder) {
+				builder.push("general");
+				replaceBlocks = builder
+						.comment("The block ids to replace.")
+						.translation("Replace Blocks")
+						.define("replaceBlocks", new String[]{"minecraft:stone"});
+				replacements = builder
+						.comment("The block ids to replace the blocks with.")
+						.translation("Replacements")
+						.define("replacements", new String[]{"minecraft:stone"});
+				allowRiskyReplacements = builder
+						.comment("Enables using blocks that might crash/lag the game if used to replace other blocks. Enable at your own risk.")
+						.translation("Allow Risky Replacements")
+						.define("allowRiskyReplacements", false);
+				dimensionFilter = builder
+						.comment("This is the Dimension Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
+						.translation("Dimension Filter")
+						.define("dimensionFilter", new String[]{"*"});
+				replacePercents = builder
+						.comment("This defines what percentage of blocks get replaced. 0.0 = 0%. 1.0 = 100%.")
+						.translation("Replace Percentages")
+						.define("replacePercents", new double[]{1.0D});
+				multiplyChances = builder
+						.comment("Multiplies the block removal chance by the block's y-value.")
+						.translation("Multiply Chances")
+						.define("multiplyChances", new boolean[]{false});
+				minYs = builder
+						.comment("The minimum Y values to replace the blocks at.")
+						.translation("Minimum Replacement Y Values")
+						.define("minYs", new int[]{-1});
+				maxYs = builder
+						.comment("The maximum Y values to replace the blocks at.")
+						.translation("Maximum Replacement Y Values")
+						.define("maxYs", new int[]{256});
+				biomeFilter = builder
+						.comment("This is the Biome Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
+						.translation("Biome Filter")
+						.define("biomeFilter", new String[]{"*"});
+				biomeFilterPrecision = builder
+						.comment("Increase the precision of the biome filter. This may reduce performance.")
+						.translation("Biome Filter Precision")
+						.define("showBalanceOnJoin", true);
+				preventLoadOnFailure = builder
+						.comment("Prevent the world from loading (and by extension, generating) if the mod is improperly configured.")
+						.translation("Prevent Loading On Failure")
+						.define("preventLoadOnFailure", true);
+				builder.pop();
+			}
+		}
 	}
 }
