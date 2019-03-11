@@ -30,7 +30,7 @@ public class WGBlockReplacer {
 	}
 
 	public static boolean isBlockRisky(Block block) {
-		return !block.getDefaultState().needsRandomTick() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState());
+		return block.getDefaultState().needsRandomTick() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState());
 	}
 
 	public static class cfg {
@@ -123,7 +123,7 @@ public class WGBlockReplacer {
 				biomeFilterPrecision = builder
 						.comment("Increase the precision of the biome filter. This may reduce performance.")
 						.translation("Biome Filter Precision")
-						.define("showBalanceOnJoin", true);
+						.define("biomeFilterPrecision", true);
 				preventLoadOnFailure = builder
 						.comment("Prevent the world from loading (and by extension, generating) if the mod is improperly configured.")
 						.translation("Prevent Loading On Failure")
