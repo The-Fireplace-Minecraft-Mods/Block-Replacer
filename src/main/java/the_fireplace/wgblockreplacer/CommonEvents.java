@@ -36,33 +36,38 @@ public class CommonEvents {
 	@SuppressWarnings("Duplicates")
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onEvent(ChunkGeneratorEvent.ReplaceBiomeBlocks event) {
-		if(replaceBlocks.size() != replacements.size() || replacements.size() !=  replacePercents.size() || replacePercents.size() != dimensionFilter.size() || dimensionFilter.size() != multiplyChances.size() || multiplyChances.size() != minYs.size() || minYs.size() != maxYs.size()) {
+		if(replaceBlocks.size() != replacements.size() || replacements.size() !=  replacePercents.size() || replacePercents.size() != dimensionFilters.size() || dimensionFilters.size() != multiplyChances.size() || multiplyChances.size() != minYs.size() || minYs.size() != maxYs.size() || maxYs.size() != biomeFilters.size()) {
 			if (displayWarning) {
 				WGBlockReplacer.LOGGER.error("Array sizes do not match!");
 				displayWarning = false;
-				int maxLength = max(replaceBlocks.size(), replacements.size(), replacePercents.size(), dimensionFilter.size(), multiplyChances.size(), minYs.size(), maxYs.size());
+				int maxLength = max(replaceBlocks.size(), replacements.size(), replacePercents.size(), dimensionFilters.size(), multiplyChances.size(), minYs.size(), maxYs.size(), biomeFilters.size());
 				if(replaceBlocks.size() < maxLength)
 					WGBlockReplacer.LOGGER.error("replaceBlocks size was %s, expected %s", replaceBlocks.size(), maxLength);
 				if(replacements.size() < maxLength)
 					WGBlockReplacer.LOGGER.error("replacements size was %s, expected %s", replacements.size(), maxLength);
 				if(replacePercents.size() < maxLength)
 					WGBlockReplacer.LOGGER.error("replacePercents size was %s, expected %s", replacePercents.size(), maxLength);
-				if(dimensionFilter.size() < maxLength)
-					WGBlockReplacer.LOGGER.error("dimensionFilter size was %s, expected %s", dimensionFilter.size(), maxLength);
+				if(dimensionFilters.size() < maxLength)
+					WGBlockReplacer.LOGGER.error("dimensionFilters size was %s, expected %s", dimensionFilters.size(), maxLength);
 				if(multiplyChances.size() < maxLength)
 					WGBlockReplacer.LOGGER.error("multiplyChances size was %s, expected %s", multiplyChances.size(), maxLength);
 				if(minYs.size() < maxLength)
 					WGBlockReplacer.LOGGER.error("minYs size was %s, expected %s", minYs.size(), maxLength);
 				if(maxYs.size() < maxLength)
 					WGBlockReplacer.LOGGER.error("maxYs size was %s, expected %s", maxYs.size(), maxLength);
+				if(biomeFilters.size() < maxLength)
+					WGBlockReplacer.LOGGER.error("biomeFilters size was %s, expected %s", biomeFilters.size(), maxLength);
 			}
 			if(preventLoadOnFailure)
-				ServerLifecycleHooks.getCurrentServer().stopServer();
+				killServer();
 			return;
 		}
+
+		IChunk chunk = event.getChunk();
+
 		for(int i = 0; i< replaceBlocks.size(); i++) {
-			boolean doEvent = ArrayUtils.contains(dimensionFilter.get(i).split(","), "*");
-			for (String dim : dimensionFilter.get(i).split(","))
+			boolean doEvent = ArrayUtils.contains(dimensionFilters.get(i).split(","), "*");
+			for (String dim : dimensionFilters.get(i).split(","))
 				try {
 					if (event.getWorld().getDimension().getType().getId() == Integer.parseInt(dim)) {
 						doEvent = !doEvent;
@@ -77,11 +82,9 @@ public class CommonEvents {
 			if (!doEvent)
 				continue;
 
-			IChunk chunk = event.getWorld().getChunk(event.getChunk().getPos().x, event.getChunk().getPos().z);
-
 			if(!biomeFilterPrecision) {
-				doEvent = ArrayUtils.contains(biomeFilter.get(i).split(","), "*");
-				for (String biome : biomeFilter.get(i).split(","))
+				doEvent = ArrayUtils.contains(biomeFilters.get(i).split(","), "*");
+				for (String biome : biomeFilters.get(i).split(","))
 					try {
 						if (Objects.requireNonNull(chunk.getWorldForge()).getBiome(new BlockPos(chunk.getPos().getXStart(), 64, chunk.getPos().getZStart())) == ForgeRegistries.BIOMES.getValue(new ResourceLocation(biome))) {
 							doEvent = !doEvent;
@@ -94,7 +97,7 @@ public class CommonEvents {
 								displayWarning = false;
 							}
 							if(preventLoadOnFailure)
-								ServerLifecycleHooks.getCurrentServer().stopServer();
+								killServer();
 						}
 					}
 				if (!doEvent)
@@ -103,24 +106,31 @@ public class CommonEvents {
 
 			Block toBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(replacements.get(i)));
 			Block fromBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(replaceBlocks.get(i)));
-			if (toBlock == fromBlock)
-				continue;
 			if (fromBlock == null) {
 				if (displayWarning) {
 					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The block to replace ("+i+") was not found.");
 					displayWarning = false;
 				}
 				if(preventLoadOnFailure)
-					ServerLifecycleHooks.getCurrentServer().stopServer();
+					killServer();
 				continue;
 			}
 			if (toBlock == null) {
 				if (displayWarning) {
-					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The block to replace ("+i+") with was not found.");
+					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The replacement ("+i+") was not found.");
 					displayWarning = false;
 				}
 				if(preventLoadOnFailure)
-					ServerLifecycleHooks.getCurrentServer().stopServer();
+					killServer();
+				continue;
+			}
+			if (toBlock == fromBlock) {
+				if(displayWarning) {
+					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The replacement for (%d) is itself.", i);
+					displayWarning = false;
+				}
+				if(preventLoadOnFailure)
+					killServer();
 				continue;
 			}
 			if (!allowRiskyReplacements && WGBlockReplacer.isBlockRisky(toBlock)) {
@@ -129,7 +139,7 @@ public class CommonEvents {
 					displayWarning = false;
 				}
 				if(preventLoadOnFailure)
-					ServerLifecycleHooks.getCurrentServer().stopServer();
+					killServer();
 				toBlock = Blocks.STONE;
 			}
 
@@ -145,8 +155,8 @@ public class CommonEvents {
 								if (storage.get(x, y, z).equals(fromState))
 									if (minYs.get(i) <= (chunkNum * 16 + y) && maxYs.get(i) >= (chunkNum * 16 + y) && rand.nextDouble() * (multiplyChances.get(i) ? (chunkNum * 16 + y) : 1) <= replacePercents.get(i)) {
 										if(biomeFilterPrecision) {
-											doEvent = ArrayUtils.contains(biomeFilter.get(i).split(","), "*");
-											for (String biome : biomeFilter.get(i).split(","))
+											doEvent = ArrayUtils.contains(biomeFilters.get(i).split(","), "*");
+											for (String biome : biomeFilters.get(i).split(","))
 												try {
 													if (Objects.requireNonNull(chunk.getWorldForge()).getBiome(new BlockPos(x, y, z)) == ForgeRegistries.BIOMES.getValue(new ResourceLocation(biome))) {
 														doEvent = !doEvent;
@@ -159,7 +169,7 @@ public class CommonEvents {
 															displayWarning = false;
 														}
 														if(preventLoadOnFailure)
-															ServerLifecycleHooks.getCurrentServer().stopServer();
+															killServer();
 													}
 												}
 											if (doEvent)
@@ -172,5 +182,9 @@ public class CommonEvents {
 			if(chunk instanceof Chunk)
 				((Chunk) chunk).markDirty();
 		}
+	}
+
+	private static void killServer() {
+		ServerLifecycleHooks.getCurrentServer().initiateShutdown();
 	}
 }

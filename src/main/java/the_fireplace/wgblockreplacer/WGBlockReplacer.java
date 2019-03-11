@@ -46,12 +46,12 @@ public class WGBlockReplacer {
 		public static List<String> replaceBlocks;
 		public static List<String> replacements;
 		public static boolean allowRiskyReplacements;
-		public static List<String> dimensionFilter;
+		public static List<String> dimensionFilters;
 		public static List<Double> replacePercents;
 		public static List<Boolean> multiplyChances;
 		public static List<Integer> minYs;
 		public static List<Integer> maxYs;
-		public static List<String> biomeFilter;
+		public static List<String> biomeFilters;
 		public static boolean biomeFilterPrecision;
 		public static boolean preventLoadOnFailure;
 
@@ -59,12 +59,12 @@ public class WGBlockReplacer {
 			replaceBlocks = SERVER.replaceBlocks.get();
 			replacements = SERVER.replacements.get();
 			allowRiskyReplacements = SERVER.allowRiskyReplacements.get();
-			dimensionFilter = SERVER.dimensionFilter.get();
+			dimensionFilters = SERVER.dimensionFilters.get();
 			replacePercents = SERVER.replacePercents.get();
 			multiplyChances = SERVER.multiplyChances.get();
 			minYs = SERVER.minYs.get();
 			maxYs = SERVER.maxYs.get();
-			biomeFilter = SERVER.biomeFilter.get();
+			biomeFilters = SERVER.biomeFilter.get();
 			biomeFilterPrecision = SERVER.biomeFilterPrecision.get();
 			preventLoadOnFailure = SERVER.preventLoadOnFailure.get();
 		}
@@ -73,7 +73,7 @@ public class WGBlockReplacer {
 			public ForgeConfigSpec.ConfigValue<List<String>> replaceBlocks;
 			public ForgeConfigSpec.ConfigValue<List<String>> replacements;
 			public ForgeConfigSpec.BooleanValue allowRiskyReplacements;
-			public ForgeConfigSpec.ConfigValue<List<String>> dimensionFilter;
+			public ForgeConfigSpec.ConfigValue<List<String>> dimensionFilters;
 			public ForgeConfigSpec.ConfigValue<List<Double>> replacePercents;
 			public ForgeConfigSpec.ConfigValue<List<Boolean>> multiplyChances;
 			public ForgeConfigSpec.ConfigValue<List<Integer>> minYs;
@@ -96,10 +96,10 @@ public class WGBlockReplacer {
 						.comment("Enables using blocks that might crash/lag the game if used to replace other blocks. Enable at your own risk.")
 						.translation("Allow Risky Replacements")
 						.define("allowRiskyReplacements", false);
-				dimensionFilter = builder
-						.comment("This is the Dimension Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
+				dimensionFilters = builder
+						.comment("This is the Dimension Filter list. If it contains *, it is a blacklist. Otherwise, it is a whitelist. Each item in the list is a list, separate the items in each sub-list with commas.")
 						.translation("Dimension Filter")
-						.define("dimensionFilter", Lists.newArrayList("*"));
+						.define("dimensionFilters", Lists.newArrayList("*"));
 				replacePercents = builder
 						.comment("This defines what percentage of blocks get replaced. 0.0 = 0%. 1.0 = 100%.")
 						.translation("Replace Percentages")
@@ -117,9 +117,9 @@ public class WGBlockReplacer {
 						.translation("Maximum Replacement Y Values")
 						.define("maxYs", Lists.newArrayList(256));
 				biomeFilter = builder
-						.comment("This is the Biome Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
+						.comment("This is the Biome Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist. Each item in the list is a list, separate the items in each sub-list with commas.")
 						.translation("Biome Filter")
-						.define("biomeFilter", Lists.newArrayList("*"));
+						.define("biomeFilters", Lists.newArrayList("*"));
 				biomeFilterPrecision = builder
 						.comment("Increase the precision of the biome filter. This may reduce performance.")
 						.translation("Biome Filter Precision")
