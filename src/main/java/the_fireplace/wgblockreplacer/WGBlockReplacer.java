@@ -1,5 +1,6 @@
 package the_fireplace.wgblockreplacer;
 
+import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -9,6 +10,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 @Mod(WGBlockReplacer.MODID)
 public class WGBlockReplacer {
@@ -40,17 +43,17 @@ public class WGBlockReplacer {
 			SERVER = specPair.getLeft();
 		}
 
-		public static String[] replaceBlocks = {"minecraft:stone"};
-		public static String[] replacements = {"minecraft:stone"};
-		public static boolean allowRiskyReplacements = false;
-		public static String[] dimensionFilter = {"*"};
-		public static double[] replacePercents = {1.0D};
-		public static boolean[] multiplyChances = {false};
-		public static int[] minYs = {-1};
-		public static int[] maxYs = {256};
-		public static String[] biomeFilter = {"*"};
-		public static boolean biomeFilterPrecision = true;
-		public static boolean preventLoadOnFailure = true;
+		public static List<String> replaceBlocks;
+		public static List<String> replacements;
+		public static boolean allowRiskyReplacements;
+		public static List<String> dimensionFilter;
+		public static List<Double> replacePercents;
+		public static List<Boolean> multiplyChances;
+		public static List<Integer> minYs;
+		public static List<Integer> maxYs;
+		public static List<String> biomeFilter;
+		public static boolean biomeFilterPrecision;
+		public static boolean preventLoadOnFailure;
 
 		public static void load() {
 			replaceBlocks = SERVER.replaceBlocks.get();
@@ -67,15 +70,15 @@ public class WGBlockReplacer {
 		}
 
 		public static class ServerConfig {
-			public ForgeConfigSpec.ConfigValue<String[]> replaceBlocks;
-			public ForgeConfigSpec.ConfigValue<String[]> replacements;
+			public ForgeConfigSpec.ConfigValue<List<String>> replaceBlocks;
+			public ForgeConfigSpec.ConfigValue<List<String>> replacements;
 			public ForgeConfigSpec.BooleanValue allowRiskyReplacements;
-			public ForgeConfigSpec.ConfigValue<String[]> dimensionFilter;
-			public ForgeConfigSpec.ConfigValue<double[]> replacePercents;
-			public ForgeConfigSpec.ConfigValue<boolean[]> multiplyChances;
-			public ForgeConfigSpec.ConfigValue<int[]> minYs;
-			public ForgeConfigSpec.ConfigValue<int[]> maxYs;
-			public ForgeConfigSpec.ConfigValue<String[]> biomeFilter;
+			public ForgeConfigSpec.ConfigValue<List<String>> dimensionFilter;
+			public ForgeConfigSpec.ConfigValue<List<Double>> replacePercents;
+			public ForgeConfigSpec.ConfigValue<List<Boolean>> multiplyChances;
+			public ForgeConfigSpec.ConfigValue<List<Integer>> minYs;
+			public ForgeConfigSpec.ConfigValue<List<Integer>> maxYs;
+			public ForgeConfigSpec.ConfigValue<List<String>> biomeFilter;
 			public ForgeConfigSpec.BooleanValue biomeFilterPrecision;
 			public ForgeConfigSpec.BooleanValue preventLoadOnFailure;
 
@@ -84,11 +87,11 @@ public class WGBlockReplacer {
 				replaceBlocks = builder
 						.comment("The block ids to replace.")
 						.translation("Replace Blocks")
-						.define("replaceBlocks", new String[]{"minecraft:stone"});
+						.define("replaceBlocks", Lists.newArrayList("minecraft:stone"));
 				replacements = builder
 						.comment("The block ids to replace the blocks with.")
 						.translation("Replacements")
-						.define("replacements", new String[]{"minecraft:stone"});
+						.define("replacements", Lists.newArrayList("minecraft:stone"));
 				allowRiskyReplacements = builder
 						.comment("Enables using blocks that might crash/lag the game if used to replace other blocks. Enable at your own risk.")
 						.translation("Allow Risky Replacements")
@@ -96,27 +99,27 @@ public class WGBlockReplacer {
 				dimensionFilter = builder
 						.comment("This is the Dimension Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
 						.translation("Dimension Filter")
-						.define("dimensionFilter", new String[]{"*"});
+						.define("dimensionFilter", Lists.newArrayList("*"));
 				replacePercents = builder
 						.comment("This defines what percentage of blocks get replaced. 0.0 = 0%. 1.0 = 100%.")
 						.translation("Replace Percentages")
-						.define("replacePercents", new double[]{1.0D});
+						.define("replacePercents", Lists.newArrayList(1.0D));
 				multiplyChances = builder
 						.comment("Multiplies the block removal chance by the block's y-value.")
 						.translation("Multiply Chances")
-						.define("multiplyChances", new boolean[]{false});
+						.define("multiplyChances", Lists.newArrayList(false));
 				minYs = builder
 						.comment("The minimum Y values to replace the blocks at.")
 						.translation("Minimum Replacement Y Values")
-						.define("minYs", new int[]{-1});
+						.define("minYs", Lists.newArrayList(-1));
 				maxYs = builder
 						.comment("The maximum Y values to replace the blocks at.")
 						.translation("Maximum Replacement Y Values")
-						.define("maxYs", new int[]{256});
+						.define("maxYs", Lists.newArrayList(256));
 				biomeFilter = builder
 						.comment("This is the Biome Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
 						.translation("Biome Filter")
-						.define("biomeFilter", new String[]{"*"});
+						.define("biomeFilter", Lists.newArrayList("*"));
 				biomeFilterPrecision = builder
 						.comment("Increase the precision of the biome filter. This may reduce performance.")
 						.translation("Biome Filter Precision")
