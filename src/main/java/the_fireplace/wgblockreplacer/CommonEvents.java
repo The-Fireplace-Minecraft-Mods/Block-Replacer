@@ -6,6 +6,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
@@ -65,7 +66,7 @@ public class CommonEvents {
 
 		IChunk chunk = event.getChunk();
 
-		for(int i = 0; i< replaceBlocks.size(); i++) {
+		for(int i = 0; i < replaceBlocks.size(); i++) {
 			boolean doEvent = ArrayUtils.contains(dimensionFilters.get(i).split(","), "*");
 			for (String dim : dimensionFilters.get(i).split(","))
 				try {
@@ -147,6 +148,7 @@ public class CommonEvents {
 			IBlockState toState = toBlock.getDefaultState();
 
 			int chunkNum = 0;
+			boolean modified = false;
 			for (ChunkSection storage : chunk.getSections()) {
 				if (storage != null)
 					for (int x = 0; x < 16; x++)
@@ -158,7 +160,7 @@ public class CommonEvents {
 											doEvent = ArrayUtils.contains(biomeFilters.get(i).split(","), "*");
 											for (String biome : biomeFilters.get(i).split(","))
 												try {
-													if (Objects.requireNonNull(chunk.getWorldForge()).getBiome(new BlockPos(x, y, z)) == ForgeRegistries.BIOMES.getValue(new ResourceLocation(biome))) {
+													if (Objects.requireNonNull(chunk.getWorldForge()).getBiome(new BlockPos(x, y, z)).equals(ForgeRegistries.BIOMES.getValue(new ResourceLocation(biome)))) {
 														doEvent = !doEvent;
 														break;
 													}
@@ -172,15 +174,22 @@ public class CommonEvents {
 															killServer();
 													}
 												}
-											if (doEvent)
+											if (doEvent) {
 												storage.set(x, y, z, toState);
-										} else
+												modified = true;
+											}
+										} else {
 											storage.set(x, y, z, toState);
+											modified = true;
+										}
 									}
 				chunkNum++;
 			}
-			if(chunk instanceof Chunk)
-				((Chunk) chunk).markDirty();
+			if(modified)
+				if(chunk instanceof Chunk)
+					((Chunk) chunk).markDirty();
+				else if(chunk instanceof ChunkPrimer)
+					((ChunkPrimer) chunk).setModified(true);
 		}
 	}
 
