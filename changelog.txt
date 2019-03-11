@@ -1,4 +1,4 @@
-Added the ability to specify multiple blocks for replacement. Delete your old config.
-Added the ability to set a min and max y value for replacement
-Added a way to only replace blocks in certain biomes
-Added mod's CurseForge link to the mod info page
+Added more robust error logging to inform users which config options are incorectly configured
+Switch to a proper logging system in preparation for the 1.13.2 update
+Fixed the crash when the mod is improperly configured
+Add a config option to shut down the server when the mod is improperly configured. This is to prevent terrain from generating without the intended configuration.

@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.Logger;
 import the_fireplace.wgblockreplacer.proxy.Common;
 
 @Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
@@ -16,8 +18,14 @@ public class WGBlockReplacer {
 	@SidedProxy(clientSide = "the_fireplace.wgblockreplacer.proxy.Client", serverSide = "the_fireplace.wgblockreplacer.proxy.Common")
 	public static Common proxy;
 
+	public static Logger LOGGER;
+
 	@EventHandler
-	@SuppressWarnings("unchecked")
+	public void preInit(FMLPreInitializationEvent event) {
+		LOGGER = event.getModLog();
+	}
+
+	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		if(event.getSide().isClient())
 			proxy.initBlockList();
@@ -40,7 +48,7 @@ public class WGBlockReplacer {
 		public static String[] replacewith = {"minecraft:stone"};
 		@Config.Comment("The block meta for the replacement block. Use -1 for the block's default state.")
 		@Config.LangKey("replacewithmeta")
-		public static int replacewithmeta[] = {-1};
+		public static int[] replacewithmeta = {-1};
 		@Config.Comment("Enables using blocks that might crash/lag the game if used to replace other blocks. Enable at your own risk.")
 		@Config.LangKey("riskyblocks")
 		public static boolean riskyblocks = false;
@@ -68,5 +76,7 @@ public class WGBlockReplacer {
 		@Config.Comment("Increase the precision of the biome filter. This may reduce performance.")
 		@Config.LangKey("biomeprecision")
 		public static boolean biomeprecision = true;
+		@Config.Comment("Prevent the world from loading if the mod is improperly configured. This is to prevent terrain from generating without the intended configuration.")
+		public static boolean preventLoadOnFailure = true;
 	}
 }

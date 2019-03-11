@@ -16,12 +16,10 @@ buildscript {
     }
 }
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.0.10"
+    id "com.matthewprenger.cursegradle" version "1.2.0"
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'net.cazzar.gradle.modsio'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
 
 allprojects {
     sourceCompatibility = 1.8
@@ -30,13 +28,13 @@ allprojects {
 
 version = "2.0.0"
 group= "the_fireplace.wgblockreplacer"
-archivesBaseName = "WGBlockReplacer"
+archivesBaseName = "WorldgenBlockReplacer-1.12.2"
 
 minecraft {
-    version = "1.12.2-14.23.1.2555"
+    version = "1.12.2-14.23.5.2768"
     runDir = "run"
     replace '${version}', project.version
-    mappings = "snapshot_20170815"
+    mappings = "stable_39"
 	
 	clientRunArgs += "--uuid=0b1ec5ad-cb2a-43b7-995d-889320eb2e5b --username=The_Fireplace"
 }
@@ -126,47 +124,5 @@ modsIO {
 		try{changelog = file('changelog.txt').text}catch(Exception e){changelog=""}
 		tag = ""
 		current = true
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if (project.hasProperty("local_maven")) {
-                repository(url: "file://${local_maven}")
-                pom {
-                    groupId = project.group
-                    version = project.version
-                    artifactId = project.archivesBaseName
-                    project {
-                        name project.archivesBaseName
-                        packaging "jar"
-                        description "Block Replacer"
-                        url "https://github.com/The-Fireplace/Block-Replacer"
-                        issueManagement {
-                            system "github"
-                            url "https://github.com/The-Fireplace/Block-Replacer/issues"
-                        }
-                        licenses {
-                            license {
-                                name "License"
-                                url "https://github.com/The-Fireplace/Block-Replacer/blob/master/LICENSE"
-                                distribution "repo"
-                            }
-                        }
-                        developers {
-                            developer {
-                                id "fireplace"
-                                name "The_Fireplace"
-                                roles {
-                                    role "owner"
-                                    role "developer"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }

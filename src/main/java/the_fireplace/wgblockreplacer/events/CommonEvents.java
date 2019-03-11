@@ -9,6 +9,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,11 +24,45 @@ public class CommonEvents {
 	private static final Random rand = new Random();
 	private static boolean displayWarning = true;
 
+	private static int max(int... args) {
+		int max = Integer.MIN_VALUE;
+		for(int arg: args)
+			if(arg > max)
+				max = arg;
+		return max;
+	}
+
+	@SuppressWarnings("Duplicates")
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onEvent(PopulateChunkEvent.Pre event) {
-		if(displayWarning && (replaceblock.length != replacewith.length || replacewith.length != replacewithmeta.length || replacewithmeta.length != replaceblockmeta.length || replaceblockmeta.length != replacepercent.length || replacepercent.length != dimension_list.length || dimension_list.length != multiplychance.length || multiplychance.length != miny.length || miny.length != maxy.length || maxy.length != biomefilter.length)){
-			System.err.println("[WorldGen Block Replacer] Array lengths do not match!");
-			displayWarning = false;
+		if(replaceblock.length != replacewith.length || replacewith.length != replacewithmeta.length || replacewithmeta.length != replaceblockmeta.length || replaceblockmeta.length != replacepercent.length || replacepercent.length != dimension_list.length || dimension_list.length != multiplychance.length || multiplychance.length != miny.length || miny.length != maxy.length || maxy.length != biomefilter.length) {
+			if (displayWarning) {
+				WGBlockReplacer.LOGGER.error("Array lengths do not match!");
+				displayWarning = false;
+				int maxLength = max(replaceblock.length, replacewith.length, replacewithmeta.length, replaceblockmeta.length, replacepercent.length, dimension_list.length, multiplychance.length, miny.length, maxy.length, biomefilter.length);
+				if(replaceblock.length < maxLength)
+					WGBlockReplacer.LOGGER.error("replaceblock length was %s, expected %s", replaceblock.length, maxLength);
+				if(replacewith.length < maxLength)
+					WGBlockReplacer.LOGGER.error("replacewith length was %s, expected %s", replacewith.length, maxLength);
+				if(replacewithmeta.length < maxLength)
+					WGBlockReplacer.LOGGER.error("replacewithmeta length was %s, expected %s", replacewithmeta.length, maxLength);
+				if(replaceblockmeta.length < maxLength)
+					WGBlockReplacer.LOGGER.error("replaceblockmeta length was %s, expected %s", replaceblockmeta.length, maxLength);
+				if(replacepercent.length < maxLength)
+					WGBlockReplacer.LOGGER.error("replacepercent length was %s, expected %s", replacepercent.length, maxLength);
+				if(dimension_list.length < maxLength)
+					WGBlockReplacer.LOGGER.error("dimension_list length was %s, expected %s", dimension_list.length, maxLength);
+				if(multiplychance.length < maxLength)
+					WGBlockReplacer.LOGGER.error("multiplychance length was %s, expected %s", multiplychance.length, maxLength);
+				if(miny.length < maxLength)
+					WGBlockReplacer.LOGGER.error("miny length was %s, expected %s", miny.length, maxLength);
+				if(maxy.length < maxLength)
+					WGBlockReplacer.LOGGER.error("maxy length was %s, expected %s", maxy.length, maxLength);
+				if(biomefilter.length < maxLength)
+					WGBlockReplacer.LOGGER.error("biomefilter length was %s, expected %s", biomefilter.length, maxLength);
+			}
+			if(preventLoadOnFailure)
+				FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
 			return;
 		}
 		for(int i=0;i<replaceblock.length;i++) {
@@ -47,7 +82,7 @@ public class CommonEvents {
 			if (!doEvent)
 				continue;
 
-			Chunk chunk = event.getWorld().getChunkFromChunkCoords(event.getChunkX(), event.getChunkZ());
+			Chunk chunk = event.getWorld().getChunk(event.getChunkX(), event.getChunkZ());
 
 			if(!biomeprecision) {
 				doEvent = ArrayUtils.contains(biomefilter[i].split(","), "*");
@@ -59,8 +94,12 @@ public class CommonEvents {
 						}
 					} catch (Exception e) {
 						if (!biome.equals("*")) {
-							System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer is improperly configured. The biome (" + biome + ") was not found.");
-							displayWarning = false;
+							if(displayWarning) {
+								WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The biome (" + biome + ") was not found.");
+								displayWarning = false;
+							}
+							if(preventLoadOnFailure)
+								FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
 						}
 					}
 				if (!doEvent)
@@ -73,35 +112,39 @@ public class CommonEvents {
 				continue;
 			if (fromBlock == null) {
 				if (displayWarning) {
-					System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer is improperly configured. The block to replace ("+i+") was not found.");
+					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The block to replace ("+i+") was not found.");
 					displayWarning = false;
 				}
+				if(preventLoadOnFailure)
+					FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
 				continue;
 			}
 			if (toBlock == null) {
 				if (displayWarning) {
-					System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer is improperly configured. The block to replace ("+i+") with was not found.");
+					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The block to replace ("+i+") with was not found.");
 					displayWarning = false;
 				}
+				if(preventLoadOnFailure)
+					FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
 				continue;
 			}
 			if (displayWarning && replaceblockmeta[i] < -1 || replaceblockmeta[i] > 15) {
-				System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer might be improperly configured. The block meta ("+i+") is out of the standard range.");
+				WGBlockReplacer.LOGGER.warn("WorldGen Block Replacer might be improperly configured. The block meta ("+i+") is out of the standard range.");
 				displayWarning = false;
 			}
 			if (displayWarning && replacewithmeta[i] < -1 || replacewithmeta[i] > 15) {
-				System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer might be improperly configured. The replacement block meta ("+i+") is out of the standard range.");
+				WGBlockReplacer.LOGGER.warn("WorldGen Block Replacer might be improperly configured. The replacement block meta ("+i+") is out of the standard range.");
 				displayWarning = false;
 			}
 			if (!riskyblocks && WGBlockReplacer.isBlockRisky(toBlock)) {
 				if (displayWarning) {
-					System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer is configured not to use risky blocks, but you have specified a risky block to be used ("+i+"). Defaulting to Stone instead.");
+					WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is configured not to use risky blocks, but you have specified a risky block to be used ("+i+"). Defaulting to Stone instead.");
 					displayWarning = false;
 				}
+				if(preventLoadOnFailure)
+					FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
 				toBlock = Blocks.STONE;
 			}
-
-
 
 			IBlockState fromState;
 			if (replaceblockmeta[i] == -1)
@@ -133,8 +176,12 @@ public class CommonEvents {
 													}
 												} catch (Exception e) {
 													if (!biome.equals("*")) {
-														System.err.println("[WorldGen Block Replacer] WorldGen Block Replacer is improperly configured. The biome (" + biome + ") was not found.");
-														displayWarning = false;
+														if(displayWarning) {
+															WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The biome (" + biome + ") was not found.");
+															displayWarning = false;
+														}
+														if(preventLoadOnFailure)
+															FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
 													}
 												}
 											if (doEvent)

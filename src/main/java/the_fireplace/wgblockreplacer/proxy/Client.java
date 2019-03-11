@@ -27,7 +27,7 @@ public class Client extends Common {
 			Block block = Block.getBlockFromName(id);
 			if (block == null)
 				continue;
-			String name = translateToLocal(block.getUnlocalizedName() + ".name");
+			String name = translateToLocal(block.getTranslationKey() + ".name");
 			if (!name.contains("tile.") && !name.contains(".name"))
 				if (WGBlockReplacer.ConfigValues.riskyblocks)
 					BlockList.entries.put(id, name);
