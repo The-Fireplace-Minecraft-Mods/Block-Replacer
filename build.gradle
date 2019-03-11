@@ -26,9 +26,9 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "2.0.0"
+version = "2.0.1"
 group= "the_fireplace.wgblockreplacer"
-archivesBaseName = "WorldgenBlockReplacer-1.12.2"
+archivesBaseName = "WGBlockReplacer-1.12.2"
 
 minecraft {
     version = "1.12.2-14.23.5.2768"
