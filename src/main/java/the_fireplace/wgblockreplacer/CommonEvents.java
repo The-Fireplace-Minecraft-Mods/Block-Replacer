@@ -9,7 +9,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -36,7 +36,7 @@ public class CommonEvents {
 
 	@SuppressWarnings("Duplicates")
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onEvent(ChunkGeneratorEvent.ReplaceBiomeBlocks event) {
+	public static void onEvent(ChunkEvent.Load event) {
 		if(replaceBlocks.size() != replacements.size() || replacements.size() !=  replacePercents.size() || replacePercents.size() != dimensionFilters.size() || dimensionFilters.size() != multiplyChances.size() || multiplyChances.size() != minYs.size() || minYs.size() != maxYs.size() || maxYs.size() != biomeFilters.size()) {
 			if (displayWarning) {
 				WGBlockReplacer.LOGGER.error("Array sizes do not match!");
@@ -155,7 +155,7 @@ public class CommonEvents {
 						for (int y = 0; y < 16; y++)
 							for (int z = 0; z < 16; z++)
 								if (storage.get(x, y, z).equals(fromState))
-									if (minYs.get(i) <= (chunkNum * 16 + y) && maxYs.get(i) >= (chunkNum * 16 + y) && rand.nextDouble() * (multiplyChances.get(i) ? (chunkNum * 16 + y) : 1) <= replacePercents.get(i)) {
+									if (minYs.get(i) <= (chunkNum * 16 + y) && maxYs.get(i) >= (chunkNum * 16 + y) && rand.nextDouble() <= replacePercents.get(i) * (multiplyChances.get(i) ? (chunkNum * 16 + y) : 1)) {
 										if(biomeFilterPrecision) {
 											doEvent = ArrayUtils.contains(biomeFilters.get(i).split(","), "*");
 											for (String biome : biomeFilters.get(i).split(","))
@@ -185,11 +185,12 @@ public class CommonEvents {
 									}
 				chunkNum++;
 			}
-			if(modified)
-				if(chunk instanceof Chunk)
+			if(modified) {
+				if (chunk instanceof Chunk)
 					((Chunk) chunk).markDirty();
-				else if(chunk instanceof ChunkPrimer)
+				else if (chunk instanceof ChunkPrimer)
 					((ChunkPrimer) chunk).setModified(true);
+			}
 		}
 	}
 

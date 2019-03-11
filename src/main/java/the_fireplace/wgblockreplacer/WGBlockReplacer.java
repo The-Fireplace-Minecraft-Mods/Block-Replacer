@@ -105,7 +105,7 @@ public class WGBlockReplacer {
 						.translation("Replace Percentages")
 						.define("replacePercents", Lists.newArrayList(1.0D));
 				multiplyChances = builder
-						.comment("Multiplies the block removal chance by the block's y-value.")
+						.comment("Multiplies the block replacement chance by the block's y-value.")
 						.translation("Multiply Chances")
 						.define("multiplyChances", Lists.newArrayList(false));
 				minYs = builder
