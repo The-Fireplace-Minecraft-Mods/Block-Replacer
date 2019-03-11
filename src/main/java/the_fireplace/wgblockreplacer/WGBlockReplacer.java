@@ -2,31 +2,93 @@ package the_fireplace.wgblockreplacer;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
+import net.minecraft.nbt.INBTBase;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.*;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Mod(WGBlockReplacer.MODID)
 public class WGBlockReplacer {
 	public static final String MODID = "wgblockreplacer";
 
+	@CapabilityInject(BlockReplacedCapability.class)
+	public static final Capability<BlockReplacedCapability> BLOCKS_REPLACED = null;
+	private static final ResourceLocation blocks_replaced_res = new ResourceLocation(MODID, "blocks_replaced");
+
 	public static Logger LOGGER = LogManager.getLogger(MODID);
 
 	public WGBlockReplacer() {
 		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, cfg.SERVER_SPEC);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverConfig);
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	public void preInit(FMLCommonSetupEvent event){
+		CapabilityManager.INSTANCE.register(BlockReplacedCapability.class, new BlockReplacedCapability.Storage(), BlockReplacedCapability.Default::new);
 	}
 
 	public void serverConfig(ModConfig.ModConfigEvent event) {
 		if (event.getConfig().getType() == ModConfig.Type.SERVER)
 			cfg.load();
+	}
+
+	public static boolean hasBeenReplaced(IChunk chunk) {
+		//noinspection ConstantConditions
+		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED).orElseThrow(() -> new IllegalStateException("Blocks Replaced Capability is not present for a chunk!")) : null;
+		return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(cfg.replacementChunkKey);
+	}
+
+	public static void setReplaced(IChunk chunk) {
+		//noinspection ConstantConditions
+		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED).orElseThrow(() -> new IllegalStateException("Blocks Replaced Capability is not present for a chunk!")) : null;
+		if(cap != null)
+			cap.setReplacedMarker(cfg.replacementChunkKey);
+	}
+
+	@SubscribeEvent
+	public static void attachChunkCaps(AttachCapabilitiesEvent<Chunk> e){
+		//noinspection ConstantConditions
+		assert BLOCKS_REPLACED != null;
+		e.addCapability(blocks_replaced_res, new ICapabilitySerializable() {
+			BlockReplacedCapability inst = BLOCKS_REPLACED.getDefaultInstance();
+
+			@Override
+			public INBTBase serializeNBT() {
+				return BLOCKS_REPLACED.getStorage().writeNBT(BLOCKS_REPLACED, inst, null);
+			}
+
+			@Override
+			public void deserializeNBT(INBTBase nbt) {
+				BLOCKS_REPLACED.getStorage().readNBT(BLOCKS_REPLACED, inst, null, nbt);
+			}
+
+			@Nonnull
+			@Override
+			public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+				//noinspection unchecked
+				return capability == BLOCKS_REPLACED ? LazyOptional.of(() -> (T) inst) : LazyOptional.empty();
+			}
+		});
 	}
 
 	public static boolean isBlockRisky(Block block) {
@@ -54,6 +116,7 @@ public class WGBlockReplacer {
 		public static List<String> biomeFilters;
 		public static boolean biomeFilterPrecision;
 		public static boolean preventLoadOnFailure;
+		public static String replacementChunkKey;
 
 		public static void load() {
 			replaceBlocks = SERVER.replaceBlocks.get();
@@ -67,6 +130,7 @@ public class WGBlockReplacer {
 			biomeFilters = SERVER.biomeFilter.get();
 			biomeFilterPrecision = SERVER.biomeFilterPrecision.get();
 			preventLoadOnFailure = SERVER.preventLoadOnFailure.get();
+			replacementChunkKey = SERVER.replacementChunkKey.get();
 		}
 
 		public static class ServerConfig {
@@ -81,6 +145,7 @@ public class WGBlockReplacer {
 			public ForgeConfigSpec.ConfigValue<List<String>> biomeFilter;
 			public ForgeConfigSpec.BooleanValue biomeFilterPrecision;
 			public ForgeConfigSpec.BooleanValue preventLoadOnFailure;
+			public ForgeConfigSpec.ConfigValue<String> replacementChunkKey;
 
 			ServerConfig(ForgeConfigSpec.Builder builder) {
 				builder.push("general");
@@ -128,6 +193,10 @@ public class WGBlockReplacer {
 						.comment("Prevent the world from loading (and by extension, generating) if the mod is improperly configured.")
 						.translation("Prevent Loading On Failure")
 						.define("preventLoadOnFailure", true);
+				replacementChunkKey = builder
+						.comment("Changing this will allow Block Replacer to run again on existing chunks. Useful for doing retrogen on world you've already run the mod on. Back up your world before changing this.")
+						.translation("Replacement Chunk Key")
+						.define("replacementChunkKey", "DEFAULT_REPLACE_KEY");
 				builder.pop();
 			}
 		}
