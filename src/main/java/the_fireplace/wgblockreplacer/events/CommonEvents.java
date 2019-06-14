@@ -41,25 +41,25 @@ public class CommonEvents {
 				displayWarning = false;
 				int maxLength = max(replaceblock.length, replacewith.length, replacewithmeta.length, replaceblockmeta.length, replacepercent.length, dimension_list.length, multiplychance.length, miny.length, maxy.length, biomefilter.length);
 				if(replaceblock.length < maxLength)
-					WGBlockReplacer.LOGGER.error("replaceblock length was %s, expected %s", replaceblock.length, maxLength);
+					WGBlockReplacer.LOGGER.error("replaceblock length was {}, expected {}", replaceblock.length, maxLength);
 				if(replacewith.length < maxLength)
-					WGBlockReplacer.LOGGER.error("replacewith length was %s, expected %s", replacewith.length, maxLength);
+					WGBlockReplacer.LOGGER.error("replacewith length was {}, expected {}", replacewith.length, maxLength);
 				if(replacewithmeta.length < maxLength)
-					WGBlockReplacer.LOGGER.error("replacewithmeta length was %s, expected %s", replacewithmeta.length, maxLength);
+					WGBlockReplacer.LOGGER.error("replacewithmeta length was {}, expected {}", replacewithmeta.length, maxLength);
 				if(replaceblockmeta.length < maxLength)
-					WGBlockReplacer.LOGGER.error("replaceblockmeta length was %s, expected %s", replaceblockmeta.length, maxLength);
+					WGBlockReplacer.LOGGER.error("replaceblockmeta length was {}, expected {}", replaceblockmeta.length, maxLength);
 				if(replacepercent.length < maxLength)
-					WGBlockReplacer.LOGGER.error("replacepercent length was %s, expected %s", replacepercent.length, maxLength);
+					WGBlockReplacer.LOGGER.error("replacepercent length was {}, expected {}", replacepercent.length, maxLength);
 				if(dimension_list.length < maxLength)
-					WGBlockReplacer.LOGGER.error("dimension_list length was %s, expected %s", dimension_list.length, maxLength);
+					WGBlockReplacer.LOGGER.error("dimension_list length was {}, expected {}", dimension_list.length, maxLength);
 				if(multiplychance.length < maxLength)
-					WGBlockReplacer.LOGGER.error("multiplychance length was %s, expected %s", multiplychance.length, maxLength);
+					WGBlockReplacer.LOGGER.error("multiplychance length was {}, expected {}", multiplychance.length, maxLength);
 				if(miny.length < maxLength)
-					WGBlockReplacer.LOGGER.error("miny length was %s, expected %s", miny.length, maxLength);
+					WGBlockReplacer.LOGGER.error("miny length was {}, expected {}", miny.length, maxLength);
 				if(maxy.length < maxLength)
-					WGBlockReplacer.LOGGER.error("maxy length was %s, expected %s", maxy.length, maxLength);
+					WGBlockReplacer.LOGGER.error("maxy length was {}, expected {}", maxy.length, maxLength);
 				if(biomefilter.length < maxLength)
-					WGBlockReplacer.LOGGER.error("biomefilter length was %s, expected %s", biomefilter.length, maxLength);
+					WGBlockReplacer.LOGGER.error("biomefilter length was {}, expected {}", biomefilter.length, maxLength);
 			}
 			if(preventLoadOnFailure)
 				FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();

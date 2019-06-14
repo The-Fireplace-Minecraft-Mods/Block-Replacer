@@ -1,4 +1,1 @@
-Added more robust error logging to inform users which config options are incorectly configured
-Switch to a proper logging system in preparation for the 1.13.2 update
-Fixed the crash when the mod is improperly configured
-Add a config option to shut down the server when the mod is improperly configured. This is to prevent terrain from generating without the intended configuration.
+Fixed error messages in the console not filling in details
