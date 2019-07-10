@@ -1,6 +1,7 @@
 package the_fireplace.wgblockreplacer;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -32,7 +33,7 @@ public class WGBlockReplacer {
 	}
 
 	public static boolean isBlockRisky(Block block) {
-		return !block.getDefaultState().isOpaqueCube() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState());
+		return !(block instanceof BlockAir) && (!block.getDefaultState().isOpaqueCube() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState()));
 	}
 
 	@Config(modid = MODID)

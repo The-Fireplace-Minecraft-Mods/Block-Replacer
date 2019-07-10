@@ -3,6 +3,7 @@ package the_fireplace.wgblockreplacer.events;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
@@ -62,7 +63,7 @@ public class CommonEvents {
 					WGBlockReplacer.LOGGER.error("biomefilter length was {}, expected {}", biomefilter.length, maxLength);
 			}
 			if(preventLoadOnFailure)
-				FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
+				stopServer();
 			return;
 		}
 		for(int i=0;i<replaceblock.length;i++) {
@@ -99,7 +100,7 @@ public class CommonEvents {
 								displayWarning = false;
 							}
 							if(preventLoadOnFailure)
-								FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
+								stopServer();
 						}
 					}
 				if (!doEvent)
@@ -116,7 +117,7 @@ public class CommonEvents {
 					displayWarning = false;
 				}
 				if(preventLoadOnFailure)
-					FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
+					stopServer();
 				continue;
 			}
 			if (toBlock == null) {
@@ -125,7 +126,7 @@ public class CommonEvents {
 					displayWarning = false;
 				}
 				if(preventLoadOnFailure)
-					FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
+					stopServer();
 				continue;
 			}
 			if (displayWarning && replaceblockmeta[i] < -1 || replaceblockmeta[i] > 15) {
@@ -142,7 +143,7 @@ public class CommonEvents {
 					displayWarning = false;
 				}
 				if(preventLoadOnFailure)
-					FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
+					stopServer();
 				toBlock = Blocks.STONE;
 			}
 
@@ -181,7 +182,7 @@ public class CommonEvents {
 															displayWarning = false;
 														}
 														if(preventLoadOnFailure)
-															FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
+															stopServer();
 													}
 												}
 											if (doEvent)
@@ -193,5 +194,11 @@ public class CommonEvents {
 			}
 			chunk.markDirty();
 		}
+	}
+
+	private static void stopServer() {
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		server.stopServer();
+		throw new RuntimeException("WorldGen Block Replacer is improperly configured, shutting down. See the logs to find out what wasn't configured properly.");
 	}
 }
