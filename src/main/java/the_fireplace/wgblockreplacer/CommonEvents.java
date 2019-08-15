@@ -44,21 +44,21 @@ public class CommonEvents {
 					displayWarning = false;
 					int maxLength = max(replaceBlocks.size(), replacements.size(), replacePercents.size(), dimensionFilters.size(), multiplyChances.size(), minYs.size(), maxYs.size(), biomeFilters.size());
 					if (replaceBlocks.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("replaceBlocks size was %s, expected %s", replaceBlocks.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("replaceBlocks size was {}, expected {}", replaceBlocks.size(), maxLength);
 					if (replacements.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("replacements size was %s, expected %s", replacements.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("replacements size was {}, expected {}", replacements.size(), maxLength);
 					if (replacePercents.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("replacePercents size was %s, expected %s", replacePercents.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("replacePercents size was {}, expected {}", replacePercents.size(), maxLength);
 					if (dimensionFilters.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("dimensionFilters size was %s, expected %s", dimensionFilters.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("dimensionFilters size was {}, expected {}", dimensionFilters.size(), maxLength);
 					if (multiplyChances.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("multiplyChances size was %s, expected %s", multiplyChances.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("multiplyChances size was {}, expected {}", multiplyChances.size(), maxLength);
 					if (minYs.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("minYs size was %s, expected %s", minYs.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("minYs size was {}, expected {}", minYs.size(), maxLength);
 					if (maxYs.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("maxYs size was %s, expected %s", maxYs.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("maxYs size was {}, expected {}", maxYs.size(), maxLength);
 					if (biomeFilters.size() < maxLength)
-						WGBlockReplacer.LOGGER.error("biomeFilters size was %s, expected %s", biomeFilters.size(), maxLength);
+						WGBlockReplacer.LOGGER.error("biomeFilters size was {}, expected {}", biomeFilters.size(), maxLength);
 				}
 				if (preventLoadOnFailure)
 					killServer();
@@ -128,7 +128,7 @@ public class CommonEvents {
 				}
 				if (toBlock == fromBlock) {
 					if (displayWarning) {
-						WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The replacement for (%d) is itself.", i);
+						WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The replacement for ({}) is itself.", i);
 						displayWarning = false;
 					}
 					if (preventLoadOnFailure)
@@ -199,5 +199,6 @@ public class CommonEvents {
 
 	private static void killServer() {
 		ServerLifecycleHooks.getCurrentServer().initiateShutdown();
+		throw new RuntimeException("WorldGen Block Replacer is improperly configured, shutting down. See the logs to find out what wasn't configured properly.");
 	}
 }

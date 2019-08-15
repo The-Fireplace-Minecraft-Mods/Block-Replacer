@@ -19,7 +19,7 @@ buildscript {
 }
 
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.2.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'net.cazzar.gradle.modsio'
@@ -29,12 +29,12 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "2.1.0"
+version = "2.1.1"
 group= "the_fireplace.wgblockreplacer"
 archivesBaseName = "WGBlockReplacer-1.13.2"
 
 minecraft {
-    mappings channel: 'stable', version: '43-1.13'
+    mappings channel: 'stable', version: '47-1.13.2'
     
     runs {
         client = {
@@ -57,7 +57,7 @@ minecraft {
 }
 
 dependencies {
-	minecraft 'net.minecraftforge:forge:1.13.2-25.0.74'
+	minecraft 'net.minecraftforge:forge:1.13.2-25.0.219'
 }
 
 repositories {
