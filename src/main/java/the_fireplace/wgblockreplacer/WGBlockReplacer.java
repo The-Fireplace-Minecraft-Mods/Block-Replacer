@@ -2,19 +2,34 @@ package the_fireplace.wgblockreplacer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 import the_fireplace.wgblockreplacer.proxy.Common;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
 public class WGBlockReplacer {
 	public static final String MODID = "wgblockreplacer";
 	public static final String MODNAME = "WorldGen Block Replacer";
+
+	@CapabilityInject(BlockReplacedCapability.class)
+	public static final Capability<BlockReplacedCapability> BLOCKS_REPLACED = null;
+	private static final ResourceLocation blocks_replaced_res = new ResourceLocation(MODID, "blocks_replaced");
 
 	@SidedProxy(clientSide = "the_fireplace.wgblockreplacer.proxy.Client", serverSide = "the_fireplace.wgblockreplacer.proxy.Common")
 	public static Common proxy;
@@ -24,12 +39,58 @@ public class WGBlockReplacer {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		LOGGER = event.getModLog();
+		CapabilityManager.INSTANCE.register(BlockReplacedCapability.class, new BlockReplacedCapability.Storage(), BlockReplacedCapability.Default::new);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		if(event.getSide().isClient())
 			proxy.initBlockList();
+	}
+
+	public static boolean hasBeenReplaced(Chunk chunk) {
+		//noinspection ConstantConditions
+		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
+		return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(ConfigValues.replacementChunkKey);
+	}
+
+	public static void setReplaced(Chunk chunk) {
+		//noinspection ConstantConditions
+		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
+		if(cap != null)
+			cap.setReplacedMarker(ConfigValues.replacementChunkKey);
+	}
+
+	@SubscribeEvent
+	public void attachChunkCaps(AttachCapabilitiesEvent<Chunk> e){
+		//noinspection ConstantConditions
+		assert BLOCKS_REPLACED != null;
+		e.addCapability(blocks_replaced_res, new ICapabilitySerializable() {
+			BlockReplacedCapability inst = BLOCKS_REPLACED.getDefaultInstance();
+
+			@Override
+			public NBTBase serializeNBT() {
+				return BLOCKS_REPLACED.getStorage().writeNBT(BLOCKS_REPLACED, inst, null);
+			}
+
+			@Override
+			public void deserializeNBT(NBTBase nbt) {
+				BLOCKS_REPLACED.getStorage().readNBT(BLOCKS_REPLACED, inst, null, nbt);
+			}
+
+			@Override
+			public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+				return capability == BLOCKS_REPLACED;
+			}
+
+			@Nonnull
+			@Override
+			public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+				//noinspection unchecked
+				return capability == BLOCKS_REPLACED ? (T) inst : null;
+			}
+		});
 	}
 
 	public static boolean isBlockRisky(Block block) {
@@ -79,5 +140,7 @@ public class WGBlockReplacer {
 		public static boolean biomeprecision = true;
 		@Config.Comment("Prevent the world from loading if the mod is improperly configured. This is to prevent terrain from generating without the intended configuration.")
 		public static boolean preventLoadOnFailure = true;
+		@Config.Comment("Changing this will allow Block Replacer to run again on existing chunks. Useful for doing retrogen on world you've already run the mod on. Back up your world before changing this.")
+		public static String replacementChunkKey = "DEFAULT_REPLACE_KEY";
 	}
 }

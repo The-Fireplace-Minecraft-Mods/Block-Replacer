@@ -16,7 +16,7 @@ buildscript {
     }
 }
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.2.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'net.cazzar.gradle.modsio'
@@ -26,7 +26,7 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "2.0.3"
+version = "2.1.1"
 group= "the_fireplace.wgblockreplacer"
 archivesBaseName = "WorldgenBlockReplacer-1.12.2"
 

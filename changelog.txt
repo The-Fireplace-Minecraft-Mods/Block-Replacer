@@ -1,3 +1,0 @@
-Provide more meaningful crash when forcing the server to shut down
-Fix air being considered a risky block
-Add $meta - a way to see the details of the block you are looking at
