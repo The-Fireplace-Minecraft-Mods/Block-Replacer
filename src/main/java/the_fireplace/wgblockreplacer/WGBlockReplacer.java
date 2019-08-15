@@ -142,5 +142,7 @@ public class WGBlockReplacer {
 		public static boolean preventLoadOnFailure = true;
 		@Config.Comment("Changing this will allow Block Replacer to run again on existing chunks. Useful for doing retrogen on world you've already run the mod on. Back up your world before changing this.")
 		public static String replacementChunkKey = "DEFAULT_REPLACE_KEY";
+		@Config.Comment("The server's locale")
+		public static String locale = "en_us";
 	}
 }
