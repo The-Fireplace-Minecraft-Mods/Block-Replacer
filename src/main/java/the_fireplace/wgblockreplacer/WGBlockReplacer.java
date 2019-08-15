@@ -1,9 +1,10 @@
 package the_fireplace.wgblockreplacer;
 
 import com.google.common.collect.Lists;
+import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.INBTBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
@@ -40,11 +41,11 @@ public class WGBlockReplacer {
 		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, cfg.SERVER_SPEC);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverConfig);
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	public void preInit(FMLCommonSetupEvent event){
 		CapabilityManager.INSTANCE.register(BlockReplacedCapability.class, new BlockReplacedCapability.Storage(), BlockReplacedCapability.Default::new);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	public void serverConfig(ModConfig.ModConfigEvent event) {
@@ -66,33 +67,33 @@ public class WGBlockReplacer {
 	}
 
 	@SubscribeEvent
-	public static void attachChunkCaps(AttachCapabilitiesEvent<Chunk> e){
+	public void attachChunkCaps(AttachCapabilitiesEvent<Chunk> e){
 		//noinspection ConstantConditions
 		assert BLOCKS_REPLACED != null;
 		e.addCapability(blocks_replaced_res, new ICapabilitySerializable() {
 			BlockReplacedCapability inst = BLOCKS_REPLACED.getDefaultInstance();
 
 			@Override
-			public INBTBase serializeNBT() {
+			public INBT serializeNBT() {
 				return BLOCKS_REPLACED.getStorage().writeNBT(BLOCKS_REPLACED, inst, null);
 			}
 
 			@Override
-			public void deserializeNBT(INBTBase nbt) {
+			public void deserializeNBT(INBT nbt) {
 				BLOCKS_REPLACED.getStorage().readNBT(BLOCKS_REPLACED, inst, null, nbt);
 			}
 
 			@Nonnull
 			@Override
-			public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+			public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing) {
 				//noinspection unchecked
-				return capability == BLOCKS_REPLACED ? LazyOptional.of(() -> (T) inst) : LazyOptional.empty();
+				return capability.getName().equals(BlockReplacedCapability.class.getCanonicalName()) ? LazyOptional.of(() -> (T) inst) : LazyOptional.empty();
 			}
 		});
 	}
 
 	public static boolean isBlockRisky(Block block) {
-		return block.getDefaultState().needsRandomTick() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState());
+		return !(block instanceof AirBlock) && (block.getDefaultState().ticksRandomly() || !block.getDefaultState().isSolid() || block.canSpawnInBlock() || block.hasTileEntity(block.getDefaultState()));
 	}
 
 	public static class cfg {

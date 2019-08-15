@@ -1,3 +1,3 @@
-Updated to 1.13.2
-Added the ability to retrogen at any time
-Changed how the generation works: Rather than working when the world first generates, it now works when the world first loads with the mod loaded. What this means: Loading this mod on existing worlds will now perform retrogen, and it should be more reliable about replacing some mods' worldgen.
+Updated to 1.14.X
+Provide more meaningful crash when forcing the server to shut down
+Fix air being considered a risky block

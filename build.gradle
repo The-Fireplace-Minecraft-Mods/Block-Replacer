@@ -19,7 +19,7 @@ buildscript {
 }
 
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.2.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'net.cazzar.gradle.modsio'
@@ -29,12 +29,12 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "2.1.0"
+version = "2.1.1"
 group= "the_fireplace.wgblockreplacer"
-archivesBaseName = "WGBlockReplacer-1.13.2"
+archivesBaseName = "WGBlockReplacer-1.14.4"
 
 minecraft {
-    mappings channel: 'stable', version: '43-1.13'
+    mappings channel: 'stable', version: '53-1.14.2'
     
     runs {
         client = {
@@ -57,7 +57,7 @@ minecraft {
 }
 
 dependencies {
-	minecraft 'net.minecraftforge:forge:1.13.2-25.0.74'
+	minecraft 'net.minecraftforge:forge:1.14.4-28.0.46'
 }
 
 repositories {
@@ -67,7 +67,7 @@ jar {
     manifest {
         attributes(["Specification-Title": "wgblockreplacer",
                     "Specification-Vendor": "The_Fireplace",
-                    "Specification-Version": "24.0", // We are version 1 of the modlauncher specification
+                    "Specification-Version": "1", // We are version 1 of the modlauncher specification
                     "Implementation-Title": "WorldGen Block Replacer",
                     "Implementation-Version": "${version}",
                     "Implementation-Vendor" : "The_Fireplace",
@@ -91,7 +91,7 @@ curseforge {
     id = '287321'
     changelog = file('changelog.txt')
     releaseType = 'beta'
-    addGameVersion '1.13.2'
+    addGameVersion '1.14.4'
 	addGameVersion 'Java 8'
     mainArtifact(jar) {
         displayName = jar.archiveName.replace(".jar", "")
@@ -108,7 +108,7 @@ modsIO {
     project{
 		artifact = new File(jar.destinationDir, archivesBaseName+"-"+version+".jar")
 		modid = "1276"
-		minecraft = "1.13.2"
+		minecraft = "1.14.4"
 		try{changelog = file('changelog.txt').text}catch(Exception e){changelog=""}
 		tag = "beta"
 		current = true
