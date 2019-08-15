@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.ArrayUtils;
 import the_fireplace.wgblockreplacer.WGBlockReplacer;
+import the_fireplace.wgblockreplacer.translation.SimpleTranslationUtil;
+
 import static the_fireplace.wgblockreplacer.WGBlockReplacer.ConfigValues.*;
 
 import java.util.Random;
@@ -40,29 +42,29 @@ public class CommonEvents {
         if(!WGBlockReplacer.hasBeenReplaced(event.getChunk())) {
             if (replaceblock.length != replacewith.length || replacewith.length != replacewithmeta.length || replacewithmeta.length != replaceblockmeta.length || replaceblockmeta.length != replacepercent.length || replacepercent.length != dimension_list.length || dimension_list.length != multiplychance.length || multiplychance.length != miny.length || miny.length != maxy.length || maxy.length != biomefilter.length) {
                 if (displayWarning) {
-                    WGBlockReplacer.LOGGER.error("Array lengths do not match!");
+                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.array_length_mismatch"));
                     displayWarning = false;
                     int maxLength = max(replaceblock.length, replacewith.length, replacewithmeta.length, replaceblockmeta.length, replacepercent.length, dimension_list.length, multiplychance.length, miny.length, maxy.length, biomefilter.length);
                     if (replaceblock.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("replaceblock length was {}, expected {}", replaceblock.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblock", replaceblock.length, maxLength));
                     if (replacewith.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("replacewith length was {}, expected {}", replacewith.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewith", replacewith.length, maxLength));
                     if (replacewithmeta.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("replacewithmeta length was {}, expected {}", replacewithmeta.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewithmeta", replacewithmeta.length, maxLength));
                     if (replaceblockmeta.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("replaceblockmeta length was {}, expected {}", replaceblockmeta.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblockmeta", replaceblockmeta.length, maxLength));
                     if (replacepercent.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("replacepercent length was {}, expected {}", replacepercent.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacepercent", replacepercent.length, maxLength));
                     if (dimension_list.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("dimension_list length was {}, expected {}", dimension_list.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "dimension_list", dimension_list.length, maxLength));
                     if (multiplychance.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("multiplychance length was {}, expected {}", multiplychance.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "multiplychance", multiplychance.length, maxLength));
                     if (miny.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("miny length was {}, expected {}", miny.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "miny", miny.length, maxLength));
                     if (maxy.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("maxy length was {}, expected {}", maxy.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "maxy", maxy.length, maxLength));
                     if (biomefilter.length < maxLength)
-                        WGBlockReplacer.LOGGER.error("biomefilter length was {}, expected {}", biomefilter.length, maxLength);
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "biomefilter", biomefilter.length, maxLength));
                 }
                 if (preventLoadOnFailure)
                     stopServer();
@@ -98,7 +100,7 @@ public class CommonEvents {
                         } catch (Exception e) {
                             if (!biome.equals("*")) {
                                 if (displayWarning) {
-                                    WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The biome (" + biome + ") was not found.");
+                                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.biome_not_found", biome));
                                     displayWarning = false;
                                 }
                                 if (preventLoadOnFailure)
@@ -115,7 +117,7 @@ public class CommonEvents {
                     continue;
                 if (fromBlock == null) {
                     if (displayWarning) {
-                        WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The block to replace (" + i + ") was not found.");
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblock_not_found", replaceblock[i]));
                         displayWarning = false;
                     }
                     if (preventLoadOnFailure)
@@ -124,7 +126,7 @@ public class CommonEvents {
                 }
                 if (toBlock == null) {
                     if (displayWarning) {
-                        WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The block to replace (" + i + ") with was not found.");
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replacewith_not_found", replacewith[i]));
                         displayWarning = false;
                     }
                     if (preventLoadOnFailure)
@@ -132,16 +134,16 @@ public class CommonEvents {
                     continue;
                 }
                 if (displayWarning && replaceblockmeta[i] < -1 || replaceblockmeta[i] > 15) {
-                    WGBlockReplacer.LOGGER.warn("WorldGen Block Replacer might be improperly configured. The block meta (" + i + ") is out of the standard range.");
+                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblockmeta_out_of_range", replaceblockmeta[i]));
                     displayWarning = false;
                 }
                 if (displayWarning && replacewithmeta[i] < -1 || replacewithmeta[i] > 15) {
-                    WGBlockReplacer.LOGGER.warn("WorldGen Block Replacer might be improperly configured. The replacement block meta (" + i + ") is out of the standard range.");
+                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replacewithmeta_out_of_range", replacewithmeta[i]));
                     displayWarning = false;
                 }
                 if (!riskyblocks && WGBlockReplacer.isBlockRisky(toBlock)) {
                     if (displayWarning) {
-                        WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is configured not to use risky blocks, but you have specified a risky block to be used (" + i + "). Defaulting to Stone instead.");
+                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.disallowed_block", replacewith[i]));
                         displayWarning = false;
                     }
                     if (preventLoadOnFailure)
@@ -180,7 +182,7 @@ public class CommonEvents {
                                                     } catch (Exception e) {
                                                         if (!biome.equals("*")) {
                                                             if (displayWarning) {
-                                                                WGBlockReplacer.LOGGER.error("WorldGen Block Replacer is improperly configured. The biome (" + biome + ") was not found.");
+                                                                WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.biome_not_found", biome));
                                                                 displayWarning = false;
                                                             }
                                                             if (preventLoadOnFailure)
@@ -202,6 +204,6 @@ public class CommonEvents {
 
 	private static void stopServer() {
 		FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
-		throw new RuntimeException("WorldGen Block Replacer is improperly configured, shutting down. See the logs to find out what wasn't configured properly.");
+		throw new RuntimeException(SimpleTranslationUtil.getStringTranslation("wgbr.shutdown"));
 	}
 }
