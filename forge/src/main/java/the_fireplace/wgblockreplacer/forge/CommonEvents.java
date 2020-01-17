@@ -1,4 +1,4 @@
-package the_fireplace.wgblockreplacer;
+package the_fireplace.wgblockreplacer.forge;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,10 +16,11 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.ArrayUtils;
-import static the_fireplace.wgblockreplacer.WGBlockReplacer.cfg.*;
 
 import java.util.Objects;
 import java.util.Random;
+
+import static the_fireplace.wgblockreplacer.forge.WGBlockReplacer.cfg.*;
 
 @Mod.EventBusSubscriber(modid = WGBlockReplacer.MODID)
 public class CommonEvents {

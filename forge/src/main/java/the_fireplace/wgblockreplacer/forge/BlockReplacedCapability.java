@@ -1,4 +1,4 @@
-package the_fireplace.wgblockreplacer;
+package the_fireplace.wgblockreplacer.forge;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.StringNBT;

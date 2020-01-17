@@ -1,4 +1,4 @@
-package the_fireplace.wgblockreplacer;
+package the_fireplace.wgblockreplacer.forge;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.AirBlock;
