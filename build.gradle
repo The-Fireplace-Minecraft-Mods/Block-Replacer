@@ -26,12 +26,12 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "2.1.2"
+version = "2.2.0"
 group= "the_fireplace.wgblockreplacer"
 archivesBaseName = "WorldgenBlockReplacer-1.12.2"
 
 minecraft {
-    version = "1.12.2-14.23.5.2768"
+    version = "1.12.2-14.23.5.2847"
     runDir = "run"
     replace '${version}', project.version
     mappings = "stable_39"

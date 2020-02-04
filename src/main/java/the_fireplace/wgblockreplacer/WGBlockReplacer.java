@@ -140,6 +140,8 @@ public class WGBlockReplacer {
 		public static boolean biomeprecision = true;
 		@Config.Comment("Prevent the world from loading if the mod is improperly configured. This is to prevent terrain from generating without the intended configuration.")
 		public static boolean preventLoadOnFailure = true;
+		@Config.Comment("Runs the replacement this many ticks after the chunk is generated. Use this if you're having issues with some blocks not being replaced. I strongly recommend that you do not set this above 10. 2-5 should be plenty.")
+		public static int lateReplacement = 0;
 		@Config.Comment("Changing this will allow Block Replacer to run again on existing chunks. Useful for doing retrogen on world you've already run the mod on. Back up your world before changing this.")
 		public static String replacementChunkKey = "DEFAULT_REPLACE_KEY";
 		@Config.Comment("The server's locale")

@@ -1,2 +1,1 @@
-Added retrogen
-Made it possible to translate the logged error messages
+Added a config option for delayed replacement. This should help with issues replacing some blocks.
