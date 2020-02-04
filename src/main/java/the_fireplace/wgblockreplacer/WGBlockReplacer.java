@@ -2,6 +2,7 @@ package the_fireplace.wgblockreplacer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockSponge;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -94,7 +95,7 @@ public class WGBlockReplacer {
 	}
 
 	public static boolean isBlockRisky(Block block) {
-		return !(block instanceof BlockAir) && (!block.getDefaultState().isOpaqueCube() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState()));
+		return !(block instanceof BlockAir) && (!block.getDefaultState().isOpaqueCube() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState())) || block instanceof BlockSponge;
 	}
 
 	@Config(modid = MODID)

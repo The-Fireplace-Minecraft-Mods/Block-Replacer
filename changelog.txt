@@ -1,1 +1,2 @@
 Added a config option for delayed replacement. This should help with issues replacing some blocks.
+Sponge is now considered a risky block due to the tendency to crash worlds when mass sponges get put near water
