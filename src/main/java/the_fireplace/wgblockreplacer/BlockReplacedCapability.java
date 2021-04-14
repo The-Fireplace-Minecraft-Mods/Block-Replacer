@@ -5,12 +5,15 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 
+import javax.annotation.Nullable;
+
 public interface BlockReplacedCapability {
 
     String getReplacedMarker();
     void setReplacedMarker(String faction);
 
     class Default implements BlockReplacedCapability {
+        @Nullable
         private String replacingMarker;
 
         public Default(){
@@ -23,6 +26,7 @@ public interface BlockReplacedCapability {
         }
 
         @Override
+        @Nullable
         public String getReplacedMarker(){
             return replacingMarker;
         }
@@ -36,8 +40,9 @@ public interface BlockReplacedCapability {
 
         @Override
         public void readNBT(Capability<BlockReplacedCapability> capability, BlockReplacedCapability instance, EnumFacing side, NBTBase nbt) {
-            if(nbt instanceof NBTTagString && !((NBTTagString) nbt).getString().isEmpty())
+            if (nbt instanceof NBTTagString && !((NBTTagString) nbt).getString().isEmpty()) {
                 instance.setReplacedMarker(((NBTTagString) nbt).getString());
+            }
         }
     }
 }

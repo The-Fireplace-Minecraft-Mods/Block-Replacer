@@ -194,29 +194,32 @@ public class CommonEvents {
             else
                 toState = toBlock.getStateFromMeta(replacewithmeta[i]);
 
-            int chunkNum = 0;
+            int storageYIndex = 0;
             for (ExtendedBlockStorage storage : chunk.getBlockStorageArray()) {
                 if (storage != null) {
-                    for (int x = 0; x < 16; x++) {
-                        for (int y = 0; y < 16; y++) {
-                            for (int z = 0; z < 16; z++) {
-                                if (storage.get(x, y, z).equals(fromState)) {
-                                    if (miny[i] <= (chunkNum * 16 + y) && maxy[i] >= (chunkNum * 16 + y) && rand.nextDouble() * (multiplychance[i] ? (chunkNum * 16 + y) : 1) <= replacepercent[i]) {
+                    for (int storageX = 0; storageX < 16; storageX++) {
+                        for (int storageY = 0; storageY < 16; storageY++) {
+                            for (int storageZ = 0; storageZ < 16; storageZ++) {
+                                if (storage.get(storageX, storageY, storageZ).equals(fromState)) {
+                                    int worldY = storageYIndex * 16 + storageY;
+                                    if (miny[i] <= worldY
+                                        && maxy[i] >= worldY
+                                        && rand.nextDouble() * (multiplychance[i] ? worldY : 1) <= replacepercent[i]
+                                    ) {
                                         if (biomeprecision) {
-                                            Biome biome = chunk.getBiome(new BlockPos(x, y, z), world.getBiomeProvider());
-                                            if (canReplaceInBiome(biome, biomefilter[i])) {
-                                                storage.set(x, y, z, toState);
+                                            Biome biome = chunk.getBiome(new BlockPos(storageX, storageY, storageZ), world.getBiomeProvider());
+                                            if (!canReplaceInBiome(biome, biomefilter[i])) {
+                                                continue;
                                             }
-                                        } else {
-                                            storage.set(x, y, z, toState);
                                         }
+                                        storage.set(storageX, storageY, storageZ, toState);
                                     }
                                 }
                             }
                         }
                     }
                 }
-                chunkNum++;
+                storageYIndex++;
             }
             chunk.markDirty();
         }

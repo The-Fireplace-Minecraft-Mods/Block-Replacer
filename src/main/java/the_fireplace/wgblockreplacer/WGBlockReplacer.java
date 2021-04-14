@@ -46,8 +46,9 @@ public class WGBlockReplacer {
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
-		if(event.getSide().isClient())
+		if (event.getSide().isClient()) {
 			proxy.initBlockList();
+		}
 	}
 
 	public static boolean hasBeenReplaced(Chunk chunk) {
@@ -59,16 +60,17 @@ public class WGBlockReplacer {
 	public static void setReplaced(Chunk chunk) {
 		//noinspection ConstantConditions
 		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
-		if(cap != null)
+		if (cap != null) {
 			cap.setReplacedMarker(ConfigValues.replacementChunkKey);
+		}
 	}
 
 	@SubscribeEvent
 	public void attachChunkCaps(AttachCapabilitiesEvent<Chunk> e){
 		//noinspection ConstantConditions
 		assert BLOCKS_REPLACED != null;
-		e.addCapability(blocks_replaced_res, new ICapabilitySerializable() {
-			BlockReplacedCapability inst = BLOCKS_REPLACED.getDefaultInstance();
+		e.addCapability(blocks_replaced_res, new ICapabilitySerializable<NBTBase>() {
+			final BlockReplacedCapability inst = BLOCKS_REPLACED.getDefaultInstance();
 
 			@Override
 			public NBTBase serializeNBT() {
@@ -95,7 +97,14 @@ public class WGBlockReplacer {
 	}
 
 	public static boolean isBlockRisky(Block block) {
-		return !(block instanceof BlockAir) && (!block.getDefaultState().isOpaqueCube() || !block.getDefaultState().isFullCube() || !block.isCollidable() || block.hasTileEntity(block.getDefaultState())) || block instanceof BlockSponge;
+		return !(block instanceof BlockAir)
+			&& (
+				!block.getDefaultState().isOpaqueCube()
+				|| !block.getDefaultState().isFullCube()
+				|| !block.isCollidable()
+				|| block.hasTileEntity(block.getDefaultState())
+				|| block instanceof BlockSponge
+			);
 	}
 
 	@Config(modid = MODID)
