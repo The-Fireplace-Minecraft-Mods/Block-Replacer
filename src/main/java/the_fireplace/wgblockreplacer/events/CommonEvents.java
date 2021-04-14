@@ -1,6 +1,5 @@
 package the_fireplace.wgblockreplacer.events;
 
-import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -21,8 +20,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import the_fireplace.wgblockreplacer.WGBlockReplacer;
 import the_fireplace.wgblockreplacer.translation.SimpleTranslationUtil;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static the_fireplace.wgblockreplacer.WGBlockReplacer.ConfigValues.*;
 
@@ -33,152 +34,153 @@ public class CommonEvents {
 
 	private static int max(int... args) {
 		int max = Integer.MIN_VALUE;
-		for(int arg: args)
-			if(arg > max)
-				max = arg;
+		for (int arg: args) {
+            if (arg > max) {
+                max = arg;
+            }
+        }
 		return max;
 	}
 
 	@SuppressWarnings("Duplicates")
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onEvent(ChunkEvent.Load event) {
-	    if(event.getWorld().isRemote)
-	        return;
-        if(!WGBlockReplacer.hasBeenReplaced(event.getChunk())) {
-            if (replaceblock.length != replacewith.length || replacewith.length != replacewithmeta.length || replacewithmeta.length != replaceblockmeta.length || replaceblockmeta.length != replacepercent.length || replacepercent.length != dimension_list.length || dimension_list.length != multiplychance.length || multiplychance.length != miny.length || miny.length != maxy.length || maxy.length != biomefilter.length) {
-                if (displayWarning) {
-                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.array_length_mismatch"));
-                    displayWarning = false;
-                    int maxLength = max(replaceblock.length, replacewith.length, replacewithmeta.length, replaceblockmeta.length, replacepercent.length, dimension_list.length, multiplychance.length, miny.length, maxy.length, biomefilter.length);
-                    if (replaceblock.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblock", replaceblock.length, maxLength));
-                    if (replacewith.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewith", replacewith.length, maxLength));
-                    if (replacewithmeta.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewithmeta", replacewithmeta.length, maxLength));
-                    if (replaceblockmeta.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblockmeta", replaceblockmeta.length, maxLength));
-                    if (replacepercent.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacepercent", replacepercent.length, maxLength));
-                    if (dimension_list.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "dimension_list", dimension_list.length, maxLength));
-                    if (multiplychance.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "multiplychance", multiplychance.length, maxLength));
-                    if (miny.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "miny", miny.length, maxLength));
-                    if (maxy.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "maxy", maxy.length, maxLength));
-                    if (biomefilter.length < maxLength)
-                        WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "biomefilter", biomefilter.length, maxLength));
-                }
-                if (preventLoadOnFailure)
-                    stopServer();
-                return;
-            }
-            if(lateReplacement > 0)
-                queueReplacement(event.getWorld(), event.getChunk());
-            else
-                doReplacement(event.getWorld(), event.getChunk());
+	    if (event.getWorld().isRemote
+            || WGBlockReplacer.hasBeenReplaced(event.getChunk())
+            || !validateConfig()
+        ) {
+            return;
+        }
+        if (lateReplacement > 0) {
+            queueReplacement(event.getWorld(), event.getChunk());
+        } else {
+            doReplacement(event.getWorld(), event.getChunk());
         }
 	}
 
-	@SubscribeEvent
+    private static boolean validateConfig() {
+        if (replaceblock.length == replacewith.length
+            && replacewith.length == replacewithmeta.length
+            && replacewithmeta.length == replaceblockmeta.length
+            && replaceblockmeta.length == replacepercent.length
+            && replacepercent.length == dimension_list.length
+            && dimension_list.length == multiplychance.length
+            && multiplychance.length == miny.length
+            && miny.length == maxy.length
+            && maxy.length == biomefilter.length
+        ) {
+            return true;
+        }
+        ArrayList<String> errors = new ArrayList<>(9);
+        if (displayWarning) {
+            WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.array_length_mismatch"));
+            displayWarning = false;
+            int maxLength = max(replaceblock.length, replacewith.length, replacewithmeta.length, replaceblockmeta.length, replacepercent.length, dimension_list.length, multiplychance.length, miny.length, maxy.length, biomefilter.length);
+            if (replaceblock.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblock", replaceblock.length, maxLength));
+            if (replacewith.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewith", replacewith.length, maxLength));
+            if (replacewithmeta.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewithmeta", replacewithmeta.length, maxLength));
+            if (replaceblockmeta.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblockmeta", replaceblockmeta.length, maxLength));
+            if (replacepercent.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacepercent", replacepercent.length, maxLength));
+            if (dimension_list.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "dimension_list", dimension_list.length, maxLength));
+            if (multiplychance.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "multiplychance", multiplychance.length, maxLength));
+            if (miny.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "miny", miny.length, maxLength));
+            if (maxy.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "maxy", maxy.length, maxLength));
+            if (biomefilter.length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "biomefilter", biomefilter.length, maxLength));
+
+            for (String error: errors) {
+                WGBlockReplacer.LOGGER.error(error);
+            }
+        }
+        if (preventLoadOnFailure) {
+            stopServer(errors.toArray(new String[0]));
+        }
+        return false;
+    }
+
+    @SubscribeEvent
     public static void onWorldTick(TickEvent.ServerTickEvent event) {
-	    for(Map.Entry<Pair<World, Chunk>, Integer> p: timers.entrySet()) {
-	        if(p.getValue() <= 0) {
+	    for (Map.Entry<Pair<World, Chunk>, Integer> p: TIMERS.entrySet()) {
+	        if (p.getValue() <= 0) {
+                TIMERS.remove(p.getKey());
 	            doReplacement(p.getKey().getLeft(), p.getKey().getRight());
-	            timers.remove(p.getKey());
-            } else
-                timers.put(p.getKey(), p.getValue()-1);
+            } else {
+                TIMERS.put(p.getKey(), p.getValue() - 1);
+            }
         }
     }
 
-	private static Map<Pair<World, Chunk>, Integer> timers = Maps.newConcurrentMap();
+	private static final Map<Pair<World, Chunk>, Integer> TIMERS = new ConcurrentHashMap<>();
 
     private static void queueReplacement(World world, Chunk chunk) {
 	    Pair<World, Chunk> p = Pair.of(world, chunk);
-	    timers.putIfAbsent(p, lateReplacement);
+	    TIMERS.putIfAbsent(p, lateReplacement);
     }
 
     private static void doReplacement(World world, Chunk chunk) {
         for (int i = 0; i < replaceblock.length; i++) {
-            boolean doEvent = ArrayUtils.contains(dimension_list[i].split(","), "*");
-            for (String dim : dimension_list[i].split(","))
-                try {
-                    if (world.provider.getDimension() == Integer.parseInt(dim)) {
-                        doEvent = !doEvent;
-                        break;
-                    }
-                } catch (NumberFormatException e) {
-                    if (!dim.equals("*") && world.provider.getDimensionType().getName().toLowerCase().equals(dim.toLowerCase())) {
-                        doEvent = !doEvent;
-                        break;
-                    }
-                }
-            if (!doEvent)
+            if (!canReplaceInDimension(world, dimension_list[i])) {
                 continue;
+            }
 
             if (!biomeprecision) {
-                doEvent = ArrayUtils.contains(biomefilter[i].split(","), "*");
-                for (String biome : biomefilter[i].split(","))
-                    try {
-                        if (chunk.getBiome(new BlockPos(chunk.getPos().getXStart(), 64, chunk.getPos().getZStart()), world.getBiomeProvider()) == Biome.REGISTRY.getObject(new ResourceLocation(biome))) {
-                            doEvent = !doEvent;
-                            break;
-                        }
-                    } catch (Exception e) {
-                        if (!biome.equals("*")) {
-                            if (displayWarning) {
-                                WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.biome_not_found", biome));
-                                displayWarning = false;
-                            }
-                            if (preventLoadOnFailure)
-                                stopServer();
-                        }
-                    }
-                if (!doEvent)
+                Biome approximateBiome = chunk.getBiome(new BlockPos(chunk.getPos().getXStart(), 64, chunk.getPos().getZStart()), world.getBiomeProvider());
+                if (!canReplaceInBiome(approximateBiome, biomefilter[i]))
                     continue;
             }
 
             Block toBlock = Block.getBlockFromName(replacewith[i]);
             Block fromBlock = Block.getBlockFromName(replaceblock[i]);
-            if (toBlock == fromBlock && replaceblockmeta == replacewithmeta)
+            if (toBlock == fromBlock && replaceblockmeta == replacewithmeta) {
                 continue;
+            }
+            ArrayList<String> errors = new ArrayList<>();
+            ArrayList<String> warnings = new ArrayList<>();
             if (fromBlock == null) {
-                if (displayWarning) {
-                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblock_not_found", replaceblock[i]));
-                    displayWarning = false;
-                }
-                if (preventLoadOnFailure)
-                    stopServer();
-                continue;
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblock_not_found", replaceblock[i]));
             }
             if (toBlock == null) {
-                if (displayWarning) {
-                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replacewith_not_found", replacewith[i]));
-                    displayWarning = false;
-                }
-                if (preventLoadOnFailure)
-                    stopServer();
-                continue;
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.replacewith_not_found", replacewith[i]));
             }
-            if (displayWarning && replaceblockmeta[i] < -1 || replaceblockmeta[i] > 15) {
-                WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblockmeta_out_of_range", replaceblockmeta[i]));
-                displayWarning = false;
+            if (replaceblockmeta[i] < -1 || replaceblockmeta[i] > 15) {
+                warnings.add(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblockmeta_out_of_range", replaceblockmeta[i]));
             }
-            if (displayWarning && replacewithmeta[i] < -1 || replacewithmeta[i] > 15) {
-                WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.replacewithmeta_out_of_range", replacewithmeta[i]));
-                displayWarning = false;
+            if (replacewithmeta[i] < -1 || replacewithmeta[i] > 15) {
+                warnings.add(SimpleTranslationUtil.getStringTranslation("wgbr.replacewithmeta_out_of_range", replacewithmeta[i]));
             }
-            if (!riskyblocks && WGBlockReplacer.isBlockRisky(toBlock)) {
-                if (displayWarning) {
-                    WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.disallowed_block", replacewith[i]));
-                    displayWarning = false;
-                }
-                if (preventLoadOnFailure)
-                    stopServer();
+            if (!riskyblocks && toBlock != null && WGBlockReplacer.isBlockRisky(toBlock)) {
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.disallowed_block", replacewith[i]));
                 toBlock = Blocks.STONE;
             }
+
+            if (displayWarning) {
+                displayWarning = false;
+                for (String error: errors) {
+                    WGBlockReplacer.LOGGER.error(error);
+                }
+                for (String warning: warnings) {
+                    WGBlockReplacer.LOGGER.warn(warning);
+                }
+            }
+
+            if (!errors.isEmpty()) {
+                if (preventLoadOnFailure) {
+                    stopServer(errors.toArray(new String[0]));
+                }
+                continue;
+            }
+
+            assert fromBlock != null;
+            assert toBlock != null;
 
             IBlockState fromState;
             if (replaceblockmeta[i] == -1)
@@ -194,35 +196,26 @@ public class CommonEvents {
 
             int chunkNum = 0;
             for (ExtendedBlockStorage storage : chunk.getBlockStorageArray()) {
-                if (storage != null)
-                    for (int x = 0; x < 16; x++)
-                        for (int y = 0; y < 16; y++)
-                            for (int z = 0; z < 16; z++)
-                                if (storage.get(x, y, z).equals(fromState))
+                if (storage != null) {
+                    for (int x = 0; x < 16; x++) {
+                        for (int y = 0; y < 16; y++) {
+                            for (int z = 0; z < 16; z++) {
+                                if (storage.get(x, y, z).equals(fromState)) {
                                     if (miny[i] <= (chunkNum * 16 + y) && maxy[i] >= (chunkNum * 16 + y) && rand.nextDouble() * (multiplychance[i] ? (chunkNum * 16 + y) : 1) <= replacepercent[i]) {
                                         if (biomeprecision) {
-                                            doEvent = ArrayUtils.contains(biomefilter[i].split(","), "*");
-                                            for (String biome : biomefilter[i].split(","))
-                                                try {
-                                                    if (chunk.getBiome(new BlockPos(x, y, z), world.getBiomeProvider()) == Biome.REGISTRY.getObject(new ResourceLocation(biome))) {
-                                                        doEvent = !doEvent;
-                                                        break;
-                                                    }
-                                                } catch (Exception e) {
-                                                    if (!biome.equals("*")) {
-                                                        if (displayWarning) {
-                                                            WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.biome_not_found", biome));
-                                                            displayWarning = false;
-                                                        }
-                                                        if (preventLoadOnFailure)
-                                                            stopServer();
-                                                    }
-                                                }
-                                            if (doEvent)
+                                            Biome biome = chunk.getBiome(new BlockPos(x, y, z), world.getBiomeProvider());
+                                            if (canReplaceInBiome(biome, biomefilter[i])) {
                                                 storage.set(x, y, z, toState);
-                                        } else
+                                            }
+                                        } else {
                                             storage.set(x, y, z, toState);
+                                        }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
                 chunkNum++;
             }
             chunk.markDirty();
@@ -230,8 +223,50 @@ public class CommonEvents {
         WGBlockReplacer.setReplaced(chunk);
     }
 
-    private static void stopServer() {
+    private static boolean canReplaceInBiome(Biome biome1, String s) {
+        boolean doEvent = ArrayUtils.contains(s.split(","), "*");
+        for (String biome : s.split(",")) {
+            String error = SimpleTranslationUtil.getStringTranslation("wgbr.biome_not_found", biome);
+            try {
+                if (biome1 == Biome.REGISTRY.getObject(new ResourceLocation(biome))) {
+                    doEvent = !doEvent;
+                    break;
+                }
+            } catch (Exception e) {
+                if (!biome.equals("*")) {
+                    if (displayWarning) {
+                        WGBlockReplacer.LOGGER.error(error);
+                        displayWarning = false;
+                    }
+                    if (preventLoadOnFailure)
+                        stopServer(new String[]{error});
+                }
+            }
+        }
+
+        return doEvent;
+    }
+
+    private static boolean canReplaceInDimension(World world, String s) {
+        boolean doEvent = ArrayUtils.contains(s.split(","), "*");
+        for (String dim : s.split(",")) {
+            try {
+                if (world.provider.getDimension() == Integer.parseInt(dim)) {
+                    doEvent = !doEvent;
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                if (!dim.equals("*") && world.provider.getDimensionType().getName().equalsIgnoreCase(dim)) {
+                    doEvent = !doEvent;
+                    break;
+                }
+            }
+        }
+        return doEvent;
+    }
+
+    private static void stopServer(String[] errors) {
 		FMLCommonHandler.instance().getMinecraftServerInstance().stopServer();
-		throw new RuntimeException(SimpleTranslationUtil.getStringTranslation("wgbr.shutdown"));
+		throw new RuntimeException(SimpleTranslationUtil.getStringTranslation("wgbr.shutdown", String.join(", ", errors)));
 	}
 }
