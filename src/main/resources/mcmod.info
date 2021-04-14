@@ -2,13 +2,13 @@
 {
   "modid": "wgblockreplacer",
   "name": "WorldGen Block Replacer",
-  "description": "Allows you to replace a block in your world generation with another block.",
+  "description": "Allows you to replace blocks with other blocks during world generation.",
   "version": "${version}",
-  "mcversion": "",
-  "url": "https://minecraft.curseforge.com/projects/wg-block-replacer",
-  "updateUrl": "https://minecraft.curseforge.com/projects/wg-block-replacer",
+  "mcversion": "1.12.X",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/worldgen-block-replacer",
+  "updateUrl": "https://www.curseforge.com/minecraft/mc-mods/worldgen-block-replacer",
   "authorList": ["The_Fireplace"],
-  "credits": "The_Fireplace for authoring",
+  "credits": "",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
