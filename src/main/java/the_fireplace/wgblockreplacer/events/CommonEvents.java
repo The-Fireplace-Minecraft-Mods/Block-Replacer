@@ -19,6 +19,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import the_fireplace.wgblockreplacer.WGBlockReplacer;
 import the_fireplace.wgblockreplacer.api.config.ConfigAccess;
+import the_fireplace.wgblockreplacer.api.world.ChunkReplacementData;
 import the_fireplace.wgblockreplacer.translation.SimpleTranslationUtil;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class CommonEvents {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onEvent(ChunkEvent.Load event) {
 	    if (event.getWorld().isRemote
-            || WGBlockReplacer.hasBeenReplaced(event.getChunk())
+            || ChunkReplacementData.getInstance().isReplaced(event.getChunk())
             || !validateConfig()
         ) {
             return;
@@ -72,7 +73,6 @@ public class CommonEvents {
         }
         ArrayList<String> errors = new ArrayList<>(9);
         if (displayWarning) {
-            WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.array_length_mismatch"));
             displayWarning = false;
             int maxLength = max(ConfigAccess.getInstance().getReplaceBlockIds().length, ConfigAccess.getInstance().getReplaceWithIds().length, ConfigAccess.getInstance().getReplaceWithMetas().length, ConfigAccess.getInstance().getReplaceBlockMetas().length, ConfigAccess.getInstance().getReplaceChances().length, ConfigAccess.getInstance().getDimensionLists().length, ConfigAccess.getInstance().getMultiplyChances().length, ConfigAccess.getInstance().getMinYs().length, ConfigAccess.getInstance().getMaxYs().length, ConfigAccess.getInstance().getBiomeFilterLists().length);
             if (ConfigAccess.getInstance().getReplaceBlockIds().length < maxLength)
@@ -222,7 +222,7 @@ public class CommonEvents {
             }
             chunk.markDirty();
         }
-        WGBlockReplacer.setReplaced(chunk);
+        ChunkReplacementData.getInstance().markAsReplaced(chunk);
     }
 
     private static boolean canReplaceInBiome(Biome biome1, String s) {

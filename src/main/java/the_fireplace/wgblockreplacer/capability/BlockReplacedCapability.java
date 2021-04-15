@@ -1,4 +1,4 @@
-package the_fireplace.wgblockreplacer;
+package the_fireplace.wgblockreplacer.capability;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagString;
