@@ -18,13 +18,14 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
+import the_fireplace.wgblockreplacer.api.config.ConfigAccess;
 import the_fireplace.wgblockreplacer.proxy.Common;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
-public class WGBlockReplacer {
+public final class WGBlockReplacer {
 	public static final String MODID = "wgblockreplacer";
 	public static final String MODNAME = "WorldGen Block Replacer";
 
@@ -54,14 +55,14 @@ public class WGBlockReplacer {
 	public static boolean hasBeenReplaced(Chunk chunk) {
 		//noinspection ConstantConditions
 		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
-		return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(ConfigValues.replacementChunkKey);
+		return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(new ConfigValues().getReplacementChunkKey());
 	}
 
 	public static void setReplaced(Chunk chunk) {
 		//noinspection ConstantConditions
 		BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
 		if (cap != null) {
-			cap.setReplacedMarker(ConfigValues.replacementChunkKey);
+			cap.setReplacedMarker(new ConfigValues().getReplacementChunkKey());
 		}
 	}
 
@@ -107,8 +108,9 @@ public class WGBlockReplacer {
 			);
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	@Config(modid = MODID)
-	public static class ConfigValues{
+	public static final class ConfigValues implements ConfigAccess {
 		@Config.Comment("The block id to replace.")
 		@Config.LangKey("replaceblock")
 		public static String[] replaceblock = {"minecraft:stone"};
@@ -156,5 +158,83 @@ public class WGBlockReplacer {
 		public static String replacementChunkKey = "DEFAULT_REPLACE_KEY";
 		@Config.Comment("The server's locale")
 		public static String locale = "en_us";
+
+		@Deprecated
+		public static final ConfigAccess INSTANCE = new ConfigValues();
+
+		@Override
+		public int[] getReplaceBlockMetas() {
+			return replaceblockmeta;
+		}
+
+		@Override
+		public String[] getReplaceWithIds() {
+			return replacewith;
+		}
+
+		@Override
+		public int[] getReplaceWithMetas() {
+			return replacewithmeta;
+		}
+
+		@Override
+		public boolean allowRiskyBlocks() {
+			return riskyblocks;
+		}
+
+		@Override
+		public String[] getDimensionLists() {
+			return dimension_list;
+		}
+
+		@Override
+		public double[] getReplaceChances() {
+			return replacepercent;
+		}
+
+		@Override
+		public boolean[] getMultiplyChances() {
+			return multiplychance;
+		}
+
+		@Override
+		public int[] getMinYs() {
+			return miny;
+		}
+
+		@Override
+		public int[] getMaxYs() {
+			return maxy;
+		}
+
+		@Override
+		public String[] getBiomeFilterLists() {
+			return biomefilter;
+		}
+
+		@Override
+		public boolean useBiomePrecision() {
+			return biomeprecision;
+		}
+
+		@Override
+		public boolean preventLoadOnFailure() {
+			return preventLoadOnFailure;
+		}
+
+		@Override
+		public int getLateReplacementTicks() {
+			return lateReplacement;
+		}
+
+		@Override
+		public String getReplacementChunkKey() {
+			return replacementChunkKey;
+		}
+
+		@Override
+		public String[] getReplaceBlockIds() {
+			return replaceblock;
+		}
 	}
 }

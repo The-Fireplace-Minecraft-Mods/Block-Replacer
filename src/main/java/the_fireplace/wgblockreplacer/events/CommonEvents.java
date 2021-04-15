@@ -18,14 +18,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import the_fireplace.wgblockreplacer.WGBlockReplacer;
+import the_fireplace.wgblockreplacer.api.config.ConfigAccess;
 import the_fireplace.wgblockreplacer.translation.SimpleTranslationUtil;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static the_fireplace.wgblockreplacer.WGBlockReplacer.ConfigValues.*;
 
 @Mod.EventBusSubscriber(modid = WGBlockReplacer.MODID)
 public class CommonEvents {
@@ -51,7 +50,7 @@ public class CommonEvents {
         ) {
             return;
         }
-        if (lateReplacement > 0) {
+        if (ConfigAccess.getInstance().getLateReplacementTicks() > 0) {
             queueReplacement(event.getWorld(), event.getChunk());
         } else {
             doReplacement(event.getWorld(), event.getChunk());
@@ -59,15 +58,15 @@ public class CommonEvents {
 	}
 
     private static boolean validateConfig() {
-        if (replaceblock.length == replacewith.length
-            && replacewith.length == replacewithmeta.length
-            && replacewithmeta.length == replaceblockmeta.length
-            && replaceblockmeta.length == replacepercent.length
-            && replacepercent.length == dimension_list.length
-            && dimension_list.length == multiplychance.length
-            && multiplychance.length == miny.length
-            && miny.length == maxy.length
-            && maxy.length == biomefilter.length
+        if (ConfigAccess.getInstance().getReplaceBlockIds().length == ConfigAccess.getInstance().getReplaceWithIds().length
+            && ConfigAccess.getInstance().getReplaceWithIds().length == ConfigAccess.getInstance().getReplaceWithMetas().length
+            && ConfigAccess.getInstance().getReplaceWithMetas().length == ConfigAccess.getInstance().getReplaceBlockMetas().length
+            && ConfigAccess.getInstance().getReplaceBlockMetas().length == ConfigAccess.getInstance().getReplaceChances().length
+            && ConfigAccess.getInstance().getReplaceChances().length == ConfigAccess.getInstance().getDimensionLists().length
+            && ConfigAccess.getInstance().getDimensionLists().length == ConfigAccess.getInstance().getMultiplyChances().length
+            && ConfigAccess.getInstance().getMultiplyChances().length == ConfigAccess.getInstance().getMinYs().length
+            && ConfigAccess.getInstance().getMinYs().length == ConfigAccess.getInstance().getMaxYs().length
+            && ConfigAccess.getInstance().getMaxYs().length == ConfigAccess.getInstance().getBiomeFilterLists().length
         ) {
             return true;
         }
@@ -75,33 +74,33 @@ public class CommonEvents {
         if (displayWarning) {
             WGBlockReplacer.LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.array_length_mismatch"));
             displayWarning = false;
-            int maxLength = max(replaceblock.length, replacewith.length, replacewithmeta.length, replaceblockmeta.length, replacepercent.length, dimension_list.length, multiplychance.length, miny.length, maxy.length, biomefilter.length);
-            if (replaceblock.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblock", replaceblock.length, maxLength));
-            if (replacewith.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewith", replacewith.length, maxLength));
-            if (replacewithmeta.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewithmeta", replacewithmeta.length, maxLength));
-            if (replaceblockmeta.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblockmeta", replaceblockmeta.length, maxLength));
-            if (replacepercent.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacepercent", replacepercent.length, maxLength));
-            if (dimension_list.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "dimension_list", dimension_list.length, maxLength));
-            if (multiplychance.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "multiplychance", multiplychance.length, maxLength));
-            if (miny.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "miny", miny.length, maxLength));
-            if (maxy.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "maxy", maxy.length, maxLength));
-            if (biomefilter.length < maxLength)
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "biomefilter", biomefilter.length, maxLength));
+            int maxLength = max(ConfigAccess.getInstance().getReplaceBlockIds().length, ConfigAccess.getInstance().getReplaceWithIds().length, ConfigAccess.getInstance().getReplaceWithMetas().length, ConfigAccess.getInstance().getReplaceBlockMetas().length, ConfigAccess.getInstance().getReplaceChances().length, ConfigAccess.getInstance().getDimensionLists().length, ConfigAccess.getInstance().getMultiplyChances().length, ConfigAccess.getInstance().getMinYs().length, ConfigAccess.getInstance().getMaxYs().length, ConfigAccess.getInstance().getBiomeFilterLists().length);
+            if (ConfigAccess.getInstance().getReplaceBlockIds().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblock", ConfigAccess.getInstance().getReplaceBlockIds().length, maxLength));
+            if (ConfigAccess.getInstance().getReplaceWithIds().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewith", ConfigAccess.getInstance().getReplaceWithIds().length, maxLength));
+            if (ConfigAccess.getInstance().getReplaceWithMetas().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacewithmeta", ConfigAccess.getInstance().getReplaceWithMetas().length, maxLength));
+            if (ConfigAccess.getInstance().getReplaceBlockMetas().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replaceblockmeta", ConfigAccess.getInstance().getReplaceBlockMetas().length, maxLength));
+            if (ConfigAccess.getInstance().getReplaceChances().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "replacepercent", ConfigAccess.getInstance().getReplaceChances().length, maxLength));
+            if (ConfigAccess.getInstance().getDimensionLists().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "dimension_list", ConfigAccess.getInstance().getDimensionLists().length, maxLength));
+            if (ConfigAccess.getInstance().getMultiplyChances().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "multiplychance", ConfigAccess.getInstance().getMultiplyChances().length, maxLength));
+            if (ConfigAccess.getInstance().getMinYs().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "miny", ConfigAccess.getInstance().getMinYs().length, maxLength));
+            if (ConfigAccess.getInstance().getMaxYs().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "maxy", ConfigAccess.getInstance().getMaxYs().length, maxLength));
+            if (ConfigAccess.getInstance().getBiomeFilterLists().length < maxLength)
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.mismatch_length", "biomefilter", ConfigAccess.getInstance().getBiomeFilterLists().length, maxLength));
 
             for (String error: errors) {
                 WGBlockReplacer.LOGGER.error(error);
             }
         }
-        if (preventLoadOnFailure) {
+        if (ConfigAccess.getInstance().preventLoadOnFailure()) {
             stopServer(errors.toArray(new String[0]));
         }
         return false;
@@ -123,42 +122,42 @@ public class CommonEvents {
 
     private static void queueReplacement(World world, Chunk chunk) {
 	    Pair<World, Chunk> p = Pair.of(world, chunk);
-	    TIMERS.putIfAbsent(p, lateReplacement);
+	    TIMERS.putIfAbsent(p, ConfigAccess.getInstance().getLateReplacementTicks());
     }
 
     private static void doReplacement(World world, Chunk chunk) {
-        for (int i = 0; i < replaceblock.length; i++) {
-            if (!canReplaceInDimension(world, dimension_list[i])) {
+        for (int i = 0; i < ConfigAccess.getInstance().getReplaceBlockIds().length; i++) {
+            if (!canReplaceInDimension(world, ConfigAccess.getInstance().getDimensionLists()[i])) {
                 continue;
             }
 
-            if (!biomeprecision) {
+            if (!ConfigAccess.getInstance().useBiomePrecision()) {
                 Biome approximateBiome = chunk.getBiome(new BlockPos(chunk.getPos().getXStart(), 64, chunk.getPos().getZStart()), world.getBiomeProvider());
-                if (!canReplaceInBiome(approximateBiome, biomefilter[i]))
+                if (!canReplaceInBiome(approximateBiome, ConfigAccess.getInstance().getBiomeFilterLists()[i]))
                     continue;
             }
 
-            Block toBlock = Block.getBlockFromName(replacewith[i]);
-            Block fromBlock = Block.getBlockFromName(replaceblock[i]);
-            if (toBlock == fromBlock && replaceblockmeta == replacewithmeta) {
+            Block toBlock = Block.getBlockFromName(ConfigAccess.getInstance().getReplaceWithIds()[i]);
+            Block fromBlock = Block.getBlockFromName(ConfigAccess.getInstance().getReplaceBlockIds()[i]);
+            if (toBlock == fromBlock && ConfigAccess.getInstance().getReplaceBlockMetas() == ConfigAccess.getInstance().getReplaceWithMetas()) {
                 continue;
             }
             ArrayList<String> errors = new ArrayList<>();
             ArrayList<String> warnings = new ArrayList<>();
             if (fromBlock == null) {
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblock_not_found", replaceblock[i]));
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblock_not_found", ConfigAccess.getInstance().getReplaceBlockIds()[i]));
             }
             if (toBlock == null) {
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.replacewith_not_found", replacewith[i]));
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.replacewith_not_found", ConfigAccess.getInstance().getReplaceWithIds()[i]));
             }
-            if (replaceblockmeta[i] < -1 || replaceblockmeta[i] > 15) {
-                warnings.add(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblockmeta_out_of_range", replaceblockmeta[i]));
+            if (ConfigAccess.getInstance().getReplaceBlockMetas()[i] < -1 || ConfigAccess.getInstance().getReplaceBlockMetas()[i] > 15) {
+                warnings.add(SimpleTranslationUtil.getStringTranslation("wgbr.replaceblockmeta_out_of_range", ConfigAccess.getInstance().getReplaceBlockMetas()[i]));
             }
-            if (replacewithmeta[i] < -1 || replacewithmeta[i] > 15) {
-                warnings.add(SimpleTranslationUtil.getStringTranslation("wgbr.replacewithmeta_out_of_range", replacewithmeta[i]));
+            if (ConfigAccess.getInstance().getReplaceWithMetas()[i] < -1 || ConfigAccess.getInstance().getReplaceWithMetas()[i] > 15) {
+                warnings.add(SimpleTranslationUtil.getStringTranslation("wgbr.replacewithmeta_out_of_range", ConfigAccess.getInstance().getReplaceWithMetas()[i]));
             }
-            if (!riskyblocks && toBlock != null && WGBlockReplacer.isBlockRisky(toBlock)) {
-                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.disallowed_block", replacewith[i]));
+            if (!ConfigAccess.getInstance().allowRiskyBlocks() && toBlock != null && WGBlockReplacer.isBlockRisky(toBlock)) {
+                errors.add(SimpleTranslationUtil.getStringTranslation("wgbr.disallowed_block", ConfigAccess.getInstance().getReplaceWithIds()[i]));
                 toBlock = Blocks.STONE;
             }
 
@@ -173,7 +172,7 @@ public class CommonEvents {
             }
 
             if (!errors.isEmpty()) {
-                if (preventLoadOnFailure) {
+                if (ConfigAccess.getInstance().preventLoadOnFailure()) {
                     stopServer(errors.toArray(new String[0]));
                 }
                 continue;
@@ -183,16 +182,16 @@ public class CommonEvents {
             assert toBlock != null;
 
             IBlockState fromState;
-            if (replaceblockmeta[i] == -1)
+            if (ConfigAccess.getInstance().getReplaceBlockMetas()[i] == -1)
                 fromState = fromBlock.getDefaultState();
             else
-                fromState = fromBlock.getStateFromMeta(replaceblockmeta[i]);
+                fromState = fromBlock.getStateFromMeta(ConfigAccess.getInstance().getReplaceBlockMetas()[i]);
 
             IBlockState toState;
-            if (replacewithmeta[i] == -1)
+            if (ConfigAccess.getInstance().getReplaceWithMetas()[i] == -1)
                 toState = toBlock.getDefaultState();
             else
-                toState = toBlock.getStateFromMeta(replacewithmeta[i]);
+                toState = toBlock.getStateFromMeta(ConfigAccess.getInstance().getReplaceWithMetas()[i]);
 
             int storageYIndex = 0;
             for (ExtendedBlockStorage storage : chunk.getBlockStorageArray()) {
@@ -202,13 +201,13 @@ public class CommonEvents {
                             for (int storageZ = 0; storageZ < 16; storageZ++) {
                                 if (storage.get(storageX, storageY, storageZ).equals(fromState)) {
                                     int worldY = storageYIndex * 16 + storageY;
-                                    if (miny[i] <= worldY
-                                        && maxy[i] >= worldY
-                                        && rand.nextDouble() * (multiplychance[i] ? worldY : 1) <= replacepercent[i]
+                                    if (ConfigAccess.getInstance().getMinYs()[i] <= worldY
+                                        && ConfigAccess.getInstance().getMaxYs()[i] >= worldY
+                                        && rand.nextDouble() * (ConfigAccess.getInstance().getMultiplyChances()[i] ? worldY : 1) <= ConfigAccess.getInstance().getReplaceChances()[i]
                                     ) {
-                                        if (biomeprecision) {
+                                        if (ConfigAccess.getInstance().useBiomePrecision()) {
                                             Biome biome = chunk.getBiome(new BlockPos(storageX, storageY, storageZ), world.getBiomeProvider());
-                                            if (!canReplaceInBiome(biome, biomefilter[i])) {
+                                            if (!canReplaceInBiome(biome, ConfigAccess.getInstance().getBiomeFilterLists()[i])) {
                                                 continue;
                                             }
                                         }
@@ -241,7 +240,7 @@ public class CommonEvents {
                         WGBlockReplacer.LOGGER.error(error);
                         displayWarning = false;
                     }
-                    if (preventLoadOnFailure)
+                    if (ConfigAccess.getInstance().preventLoadOnFailure())
                         stopServer(new String[]{error});
                 }
             }

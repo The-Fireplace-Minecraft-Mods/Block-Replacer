@@ -7,6 +7,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import the_fireplace.wgblockreplacer.WGBlockReplacer;
+import the_fireplace.wgblockreplacer.api.config.ConfigAccess;
 import the_fireplace.wgblockreplacer.config.BlockList;
 
 /**
@@ -29,10 +30,11 @@ public class Client extends Common {
 				continue;
 			String name = translateToLocal(block.getTranslationKey() + ".name");
 			if (!name.contains("tile.") && !name.contains(".name"))
-				if (WGBlockReplacer.ConfigValues.riskyblocks)
+				if (ConfigAccess.getInstance().allowRiskyBlocks()) {
 					BlockList.entries.put(id, name);
-				else if (!WGBlockReplacer.isBlockRisky(block))
+				} else if (!WGBlockReplacer.isBlockRisky(block)) {
 					BlockList.entries.put(id, name);
+				}
 		}
 	}
 }
