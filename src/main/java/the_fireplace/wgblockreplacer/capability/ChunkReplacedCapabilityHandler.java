@@ -11,13 +11,13 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import the_fireplace.wgblockreplacer.WGBlockReplacer;
+import the_fireplace.wgblockreplacer.api.config.ConfigAccess;
 import the_fireplace.wgblockreplacer.api.world.ChunkReplacementData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ChunkReplacedCapabilityHandler implements ChunkReplacementData {
-    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public static final ChunkReplacementData INSTANCE = new ChunkReplacedCapabilityHandler();
     private ChunkReplacedCapabilityHandler() {}
@@ -31,7 +31,7 @@ public final class ChunkReplacedCapabilityHandler implements ChunkReplacementDat
     public boolean isReplaced(Chunk chunk) {
         //noinspection ConstantConditions
         BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
-        return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(new WGBlockReplacer.ConfigValues().getReplacementChunkKey());
+        return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(ConfigAccess.getInstance().getReplacementChunkKey());
     }
 
     @Override
@@ -39,17 +39,17 @@ public final class ChunkReplacedCapabilityHandler implements ChunkReplacementDat
         //noinspection ConstantConditions
         BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
         if (cap != null) {
-            cap.setReplacedMarker(new WGBlockReplacer.ConfigValues().getReplacementChunkKey());
+            cap.setReplacedMarker(ConfigAccess.getInstance().getReplacementChunkKey());
         }
     }
 
     @SubscribeEvent
-    public void attachChunkCapability(AttachCapabilitiesEvent<Chunk> e){
-        //noinspection ConstantConditions
+    public void attachChunkCapability(AttachCapabilitiesEvent<Chunk> e) {
         assert BLOCKS_REPLACED != null;
         e.addCapability(BLOCKS_REPLACED_CAPABILITY_ID, new ICapabilitySerializable<NBTBase>() {
             final BlockReplacedCapability inst = BLOCKS_REPLACED.getDefaultInstance();
 
+            @Nullable
             @Override
             public NBTBase serializeNBT() {
                 return BLOCKS_REPLACED.getStorage().writeNBT(BLOCKS_REPLACED, inst, null);
@@ -65,7 +65,7 @@ public final class ChunkReplacedCapabilityHandler implements ChunkReplacementDat
                 return capability == BLOCKS_REPLACED;
             }
 
-            @Nonnull
+            @Nullable
             @Override
             public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
                 //noinspection unchecked

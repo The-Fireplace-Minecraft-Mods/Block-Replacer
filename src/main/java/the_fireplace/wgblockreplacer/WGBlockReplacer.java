@@ -105,6 +105,8 @@ public final class WGBlockReplacer {
 		@Deprecated
 		@Config.Ignore
 		public static final ConfigAccess INSTANCE = new ConfigValues();
+		@Deprecated
+		public ConfigValues() {}
 
 		@Override
 		public int[] getReplaceBlockMetas() {
