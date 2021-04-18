@@ -62,24 +62,6 @@ processResources
     }
 }
 
-task showVersion {
-    description "Displays the current version"
-    group "help"
-    
-    compileJava.dependsOn showVersion
-    deobfCompileDummyTask.dependsOn showVersion
-    extractMcpMappings.dependsOn showVersion
-  
-    doLast {
-        def versionFile = new File(buildDir, '.version');
-    
-        versionFile.getParentFile().mkdirs();
-        versionFile.text = version;
-    }
-    
-    outputs.upToDateWhen { false }
-}
-
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     classifier = 'deobf'
