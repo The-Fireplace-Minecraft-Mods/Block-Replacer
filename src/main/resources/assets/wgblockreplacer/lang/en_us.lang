@@ -16,11 +16,9 @@ multiplychance=Multiply Removal Chance
 multiplychance.tooltip=Multiplies the block removal chance by the block's y-value.
 
 wgbr.mismatch_length=%s length was %s, expected %s
-wgbr.biome_not_found=The biome (%s) was not found.
-wgbr.replaceblock_not_found=The block to replace (%s) was not found.
-wgbr.replacewith_not_found=The block to replace with (%s) was not found.
-wgbr.replaceblockmeta_out_of_range=The block meta (%s) is out of the standard range.
-wgbr.replacewithmeta_out_of_range=The replace with meta (%s) is out of the standard range.
-wgbr.disallowed_block=WorldGen Block Replacer is configured not to use risky blocks, but you have specified a risky block to be used (%s). Defaulting to Stone instead.
+wgbr.biome_not_found=The biome %s was not found.
+wgbr.block_not_found=The block %s was not found.
+wgbr.blockmeta_out_of_range=The block meta (%s) is out of the standard range.
+wgbr.disallowed_block=WorldGen Block Replacer is configured not to use risky blocks, but you have specified a risky block to be used (%s).
 wgbr.improperly_configured=WorldGen Block Replacer is improperly configured. Replacements will not happen until it is corrected.
 wgbr.shutdown=WorldGen Block Replacer is improperly configured, shutting down. %s

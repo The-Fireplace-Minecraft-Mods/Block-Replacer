@@ -1,11 +1,9 @@
 package the_fireplace.wgblockreplacer;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockSponge;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -14,15 +12,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import org.apache.logging.log4j.Logger;
 import the_fireplace.wgblockreplacer.api.config.ConfigAccess;
-import the_fireplace.wgblockreplacer.api.config.ConfigValidator;
-import the_fireplace.wgblockreplacer.api.server.ServerShutdownForcer;
+import the_fireplace.wgblockreplacer.api.config.ValidationFailureHandler;
 import the_fireplace.wgblockreplacer.capability.BlockReplacedCapability;
 import the_fireplace.wgblockreplacer.capability.ChunkReplacedCapabilityHandler;
-import the_fireplace.wgblockreplacer.events.ReplacementHook;
 import the_fireplace.wgblockreplacer.proxy.Common;
-import the_fireplace.wgblockreplacer.translation.SimpleTranslationUtil;
-
-import java.util.Collection;
 
 @Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
 public final class WGBlockReplacer {
@@ -32,7 +25,11 @@ public final class WGBlockReplacer {
 	@SidedProxy(clientSide = "the_fireplace.wgblockreplacer.proxy.Client", serverSide = "the_fireplace.wgblockreplacer.proxy.Common")
 	public static Common proxy;
 
-	public static Logger LOGGER;
+	private static Logger LOGGER = FMLLog.getLogger();
+
+	public static Logger getLogger() {
+		return LOGGER;
+	}
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
@@ -51,33 +48,7 @@ public final class WGBlockReplacer {
 
 	@EventHandler
 	public void onServerStart(FMLServerStartedEvent event) {
-		ConfigValidator validator = ConfigValidator.getInstance();
-		if (!validator.validate()) {
-			Collection<String> validationErrors = validator.getValidationErrors();
-			if (ConfigAccess.getInstance().preventLoadOnFailure()) {
-				ServerShutdownForcer.getInstance().shutdown(validationErrors);
-			} else {
-				LOGGER.error(SimpleTranslationUtil.getStringTranslation("wgbr.improperly_configured"));
-				for (String errorMessage: validationErrors) {
-					LOGGER.error(errorMessage);
-				}
-			}
-
-			return;
-		}
-
-		MinecraftForge.EVENT_BUS.register(new ReplacementHook());
-	}
-
-	public static boolean isBlockRisky(Block block) {
-		return !(block instanceof BlockAir)
-			&& (
-				!block.getDefaultState().isOpaqueCube()
-				|| !block.getDefaultState().isFullCube()
-				|| !block.isCollidable()
-				|| block.hasTileEntity(block.getDefaultState())
-				|| block instanceof BlockSponge
-			);
+		ValidationFailureHandler.getInstance().revalidate();
 	}
 
 	@SuppressWarnings("WeakerAccess")
@@ -141,7 +112,7 @@ public final class WGBlockReplacer {
 		}
 
 		@Override
-		public String[] getReplaceWithIds() {
+		public String[] getReplaceWithBlockIds() {
 			return replacewith;
 		}
 

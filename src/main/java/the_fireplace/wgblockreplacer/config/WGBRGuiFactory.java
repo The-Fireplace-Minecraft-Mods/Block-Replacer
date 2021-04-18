@@ -9,9 +9,6 @@ import the_fireplace.wgblockreplacer.WGBlockReplacer;
 import java.util.Collections;
 import java.util.Set;
 
-/**
- * @author The_Fireplace
- */
 public class WGBRGuiFactory implements IModGuiFactory {
 
 	@Override

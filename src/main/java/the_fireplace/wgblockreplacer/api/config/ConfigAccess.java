@@ -10,7 +10,7 @@ public interface ConfigAccess {
 
     int[] getReplaceBlockMetas();
 
-    String[] getReplaceWithIds();
+    String[] getReplaceWithBlockIds();
 
     int[] getReplaceWithMetas();
 

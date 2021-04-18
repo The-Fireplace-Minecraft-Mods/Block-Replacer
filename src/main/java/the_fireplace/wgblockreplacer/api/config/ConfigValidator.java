@@ -1,11 +1,15 @@
 package the_fireplace.wgblockreplacer.api.config;
 
+import the_fireplace.wgblockreplacer.config.Validator;
+
 import java.util.Collection;
 
 public interface ConfigValidator {
     static ConfigValidator getInstance() {
-        return null;
+        //noinspection deprecation
+        return Validator.INSTANCE;
     }
-    boolean validate();
+    boolean calculateValidity();
+    boolean isValid();
     Collection<String> getValidationErrors();
 }
