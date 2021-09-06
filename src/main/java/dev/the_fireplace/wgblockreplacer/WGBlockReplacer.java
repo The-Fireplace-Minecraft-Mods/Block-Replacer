@@ -17,12 +17,12 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
+@Mod(modid = WGBlockReplacer.MODID, name = WGBlockReplacer.MODNAME, guiFactory = "dev.the_fireplace.wgblockreplacer.config.WGBRGuiFactory", canBeDeactivated = true, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*")
 public final class WGBlockReplacer {
 	public static final String MODID = "wgblockreplacer";
 	public static final String MODNAME = "WorldGen Block Replacer";
 
-	@SidedProxy(clientSide = "the_fireplace.wgblockreplacer.proxy.Client", serverSide = "the_fireplace.wgblockreplacer.proxy.Common")
+	@SidedProxy(clientSide = "dev.the_fireplace.wgblockreplacer.proxy.Client", serverSide = "dev.the_fireplace.wgblockreplacer.proxy.Common")
 	public static Common proxy;
 
 	private static Logger LOGGER = FMLLog.getLogger();
