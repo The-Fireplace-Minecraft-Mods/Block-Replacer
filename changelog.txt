@@ -1,1 +1,2 @@
 Improved block replacement performance
+Fixed multiplyChance dividing instead of multiplying
