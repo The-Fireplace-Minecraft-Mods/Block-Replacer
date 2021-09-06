@@ -20,7 +20,9 @@ import javax.annotation.Nullable;
 public final class ChunkReplacedCapabilityHandler implements ChunkReplacementData {
     @Deprecated
     public static final ChunkReplacementData INSTANCE = new ChunkReplacedCapabilityHandler();
-    private ChunkReplacedCapabilityHandler() {}
+
+    private ChunkReplacedCapabilityHandler() {
+    }
 
     private static final ResourceLocation BLOCKS_REPLACED_CAPABILITY_ID = new ResourceLocation(WGBlockReplacer.MODID, "blocks_replaced");
 
@@ -28,19 +30,31 @@ public final class ChunkReplacedCapabilityHandler implements ChunkReplacementDat
     public static Capability<BlockReplacedCapability> BLOCKS_REPLACED = null;
 
     @Override
-    public boolean isReplaced(Chunk chunk) {
-        //noinspection ConstantConditions
-        BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
-        return cap != null && cap.getReplacedMarker() != null && cap.getReplacedMarker().equals(ConfigAccess.getInstance().getReplacementChunkKey());
+    public boolean needsReplacement(Chunk chunk) {
+        BlockReplacedCapability cap = getReplacedCapability(chunk);
+        boolean hasReplacedMarker = cap != null
+            && cap.getReplacedMarker() != null;
+        return !hasReplacedMarker || !cap.getReplacedMarker().equals(ConfigAccess.getInstance().getReplacementChunkKey());
+    }
+
+    @Override
+    public boolean needsRetrogen(Chunk chunk) {
+        return chunk.isTerrainPopulated() && needsReplacement(chunk);
     }
 
     @Override
     public void markAsReplaced(Chunk chunk) {
-        //noinspection ConstantConditions
-        BlockReplacedCapability cap = chunk instanceof ICapabilityProvider ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null) : null;
+        BlockReplacedCapability cap = getReplacedCapability(chunk);
         if (cap != null) {
             cap.setReplacedMarker(ConfigAccess.getInstance().getReplacementChunkKey());
         }
+    }
+
+    private BlockReplacedCapability getReplacedCapability(Chunk chunk) {
+        //noinspection ConstantConditions
+        return chunk instanceof ICapabilityProvider
+            ? ((ICapabilityProvider) chunk).getCapability(BLOCKS_REPLACED, null)
+            : null;
     }
 
     @SubscribeEvent

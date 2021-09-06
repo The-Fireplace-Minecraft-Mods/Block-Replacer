@@ -31,7 +31,7 @@ public final class ClientEvents {
 	}
 
 	@SubscribeEvent
-	public static void onKeyPress(ClientChatEvent event) {
+	public static void onChatSending(ClientChatEvent event) {
 		if (event.getOriginalMessage().equals("$meta")) {
 			event.setCanceled(true);
 			RayTraceResult look = Minecraft.getMinecraft().objectMouseOver;
