@@ -1,83 +1,167 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-    }
-}
+//file:noinspection GroovyAssignabilityCheck
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.4.0"
+	// Dependencies
+	id 'fabric-loom' version '0.9-SNAPSHOT'
+	// Mod Hosting Publish
+	id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id 'com.modrinth.minotaur' version '1.1.0'
+	// Maven Publish
+	id 'maven-publish'
+	id 'signing'
+	id 'io.codearte.nexus-staging' version '0.30.0'
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
 
-allprojects {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-}
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
-version = "2.3.1+1.12.2"
-group= "dev.the-fireplace"
-archivesBaseName = "WorldGen-Block-Replacer"
+archivesBaseName = project.archives_base_name
+version = "${project.mod_version}+${project.minecraft_version}"
+group = project.maven_group
 
-minecraft {
-    version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-    replace '${version}', project.version
-    mappings = "stable_39"
-	
-	clientRunArgs += "--uuid=0b1ec5ad-cb2a-43b7-995d-889320eb2e5b --username=The_Fireplace"
+repositories {
+	maven { url 'https://maven.shedaniel.me/' }
+	maven { url 'https://maven.terraformersmc.com/releases/' }
+	flatDir { dirs 'lib' }
 }
 
 dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version}") {
+		exclude(group: 'net.fabricmc.fabric-api')
+	}
+	modCompileOnly "dev.the-fireplace:Fireplace-Lib:${project.fireplacelib_version}:api"
+	modRuntime "dev.the-fireplace:Fireplace-Lib:${project.fireplacelib_version}"
+	annotationProcessor "dev.the-fireplace:Annotated-DI:${project.annotateddi_version}:processor"
+
+	compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
+processResources {
+	inputs.property 'version', project.version
 
-repositories {
+	filesMatching('fabric.mod.json') {
+		expand 'version': project.version
+	}
 }
 
-processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = 'UTF-8'
+	it.options.release.set(16)
 }
 
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
+java {
+	withJavadocJar()
+	withSourcesJar()
 }
 
-artifacts {
-    archives jar
-    archives deobfJar
-    archives sourceJar
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
 }
 
-curseforge {
-  apiKey = project.hasProperty("curseForgeApiKey")? project.curseForgeApiKey : "empty"
-  project {
-    id = '287321'
-    changelog = file('changelog.txt')
-    releaseType = 'release'
-    addGameVersion '1.12.2'
-	addGameVersion 'Java 8'
-	addGameVersion 'Forge'
-    mainArtifact(jar) {
-        displayName = jar.archiveName.replace(".jar", "")
-    }
-  }
+if (hasProperty('curseForgeApiKey')) {
+	curseforge {
+		apiKey = curseForgeApiKey
+		project {
+			id = '287321'
+			changelog = file('changelog.txt')
+			releaseType = project.release_type
+			addGameVersion project.minecraft_version
+			addGameVersion '1.17'
+			addGameVersion 'Java 16'
+			addGameVersion 'Fabric'
+			mainArtifact(new File(new File(buildDir, 'libs'), "$archivesBaseName-${version}.jar")) {
+				displayName = "$archivesBaseName-$version"
+				relations {
+					requiredDependency 'fireplace-lib'
+					optionalDependency 'cloth-config'
+					optionalDependency 'modmenu'
+				}
+			}
+		}
+		options {
+			javaIntegration = false
+			forgeGradleIntegration = false
+		}
+	}
+}
+
+import com.modrinth.minotaur.TaskModrinthUpload
+if (hasProperty('modrinthApiKey')) {
+	task publishModrinth(type: TaskModrinthUpload) {
+		token = modrinthApiKey
+		projectId = '00000000'
+		versionNumber = version
+		versionName = project.mod_version
+		uploadFile = new File(new File(buildDir, 'libs'), "$archivesBaseName-${version}.jar")
+		changelog = file('changelog.txt').getText()
+		releaseType = project.release_type
+		addGameVersion(project.minecraft_version as String)
+		addGameVersion('1.17')
+		addLoader('fabric')
+	}
+}
+
+if (hasProperty('nexusUsername')) {
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				artifact(remapJar) {
+					builtBy remapJar
+				}
+				artifact(sourcesJar) {
+					builtBy remapSourcesJar
+				}
+				artifact javadocJar
+				pom {
+					name = 'WorldGen Block Replacer'
+					packaging = 'jar'
+					description = 'A server-side Minecraft mod that allows replacing blocks in the world.'
+					url = 'https://www.curseforge.com/minecraft/mc-mods/worldgen-block-replaced'
+					scm {
+						connection = "scm:svn:https://github.com/The-Fireplace-Minecraft-Mods/${project.github_slug}.git"
+						developerConnection = "scm:svn:https://github.com/The-Fireplace-Minecraft-Mods/${project.github_slug}.git"
+						url = "https://github.com/The-Fireplace-Minecraft-Mods/${project.github_slug}"
+					}
+
+					licenses {
+						license {
+							name = 'The MIT License'
+							url = 'https://opensource.org/licenses/MIT'
+						}
+					}
+
+					developers {
+						developer {
+							id = 'the_fireplace'
+							name = 'The_Fireplace'
+							email = 'the.f1repl4ce@gmail.com'
+						}
+					}
+				}
+			}
+		}
+		repositories {
+			maven {
+				def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+				def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+				url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+				credentials {
+					username = nexusUsername
+					password = nexusPassword
+				}
+			}
+		}
+	}
+
+	signing {
+		sign publishing.publications.mavenJava
+	}
 }
