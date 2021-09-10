@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "wgblockreplacer",
+  "version": "${version}",
+  "name": "WorldGen Block Replacer",
+  "description": "Replace blocks with other blocks when generating the world.",
+  "authors": [
+    "The_Fireplace"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/worldgen-block-replacer",
+    "sources": "https://github.com/The-Fireplace-Minecraft-Mods/Block-Replacer",
+    "issues": "https://github.com/The-Fireplace-Minecraft-Mods/Block-Replacer/issues"
+  },
+  "license": "MPL-2.0",
+  "icon": "assets/wgblockreplacer/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "di-main": [
+      "the_fireplace.homecamp.HomeCamp"
+    ],
+    "modmenu": [
+      "the_fireplace.homecamp.entrypoints.ModMenuEntrypoint"
+    ]
+  },
+  "mixins": [
+    "wgblockreplacer.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "minecraft": ">=1.17",
+    "fireplacelib": ">=5.6.1 <6"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/QXQYPj5"
+      }
+    }
+  }
+}
