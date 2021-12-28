@@ -1,32 +1,33 @@
 package dev.the_fireplace.wgblockreplacer.config;
 
+import com.google.common.collect.Lists;
 import dev.the_fireplace.lib.api.io.interfaces.access.StorageReadBuffer;
 import dev.the_fireplace.lib.api.io.interfaces.access.StorageWriteBuffer;
 import dev.the_fireplace.lib.api.lazyio.injectables.ConfigStateManager;
 import dev.the_fireplace.lib.api.lazyio.interfaces.Config;
 import dev.the_fireplace.wgblockreplacer.WGBRConstants;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public final class ReplacementSetting implements Config {
+public final class ReplacementSetting implements Config
+{
 
     public static final short ABSOLUTE_MINIMUM_Y = (short) -4000;
     public static final short ABSOLUTE_MAXIMUM_Y = (short) 4000;
 
-    protected String id;
-    protected String targetBlockId;
-    protected String replacementBlockId;
-    protected double baseReplacementChance;
+    private String id;
+    private String targetBlockId;
+    private String replacementBlockId;
+    private double baseReplacementChance;
 
-    protected boolean multiplyChanceByHeight;
-    protected short minimumY;
-    protected short maximumY;
+    private boolean multiplyChanceByHeight;
+    private short minimumY;
+    private short maximumY;
 
-    protected List<String> biomeList;
-    protected List<String> dimensionList;
+    private List<String> biomeList;
+    private List<String> dimensionList;
 
-    protected short lateReplacementTicks;
+    private short lateReplacementTicks;
 
     public ReplacementSetting(ConfigStateManager configStateManager, String id) {
         this.id = id;
@@ -52,24 +53,8 @@ public final class ReplacementSetting implements Config {
         minimumY = buffer.readShort("minimumY", ABSOLUTE_MINIMUM_Y);
         maximumY = buffer.readShort("maximumY", ABSOLUTE_MAXIMUM_Y);
         lateReplacementTicks = buffer.readShort("lateReplacementTicks", (short) 0);
-        //TODO rewrite list handling with FL 6.0.0
-        biomeList = new ArrayList<>();
-        dimensionList = new ArrayList<>();
-        for (String key : buffer.getKeys()) {
-            if (key.startsWith("biomeList-")) {
-                biomeList.add(buffer.readString(key, ""));
-            } else if (key.startsWith("dimensionList-")) {
-                dimensionList.add(buffer.readString(key, ""));
-            }
-        }
-
-        if (biomeList.isEmpty() && !buffer.readBool("biomeListIsEmpty", false)) {
-            biomeList.add("*");
-        }
-
-        if (dimensionList.isEmpty() && !buffer.readBool("dimensionListIsEmpty", false)) {
-            dimensionList.add("*");
-        }
+        biomeList = buffer.readStringList("biomeList", Lists.newArrayList("*"));
+        dimensionList = buffer.readStringList("dimensionList", Lists.newArrayList("*"));
     }
 
     @Override
@@ -81,19 +66,8 @@ public final class ReplacementSetting implements Config {
         buffer.writeShort("minimumY", minimumY);
         buffer.writeShort("maximumY", maximumY);
         buffer.writeShort("lateReplacementTicks", lateReplacementTicks);
-        //TODO This is horrible, rewrite with FL 6.0.0
-        for (String biome : biomeList) {
-            buffer.writeString("biomeList-" + biome, biome);
-        }
-        if (biomeList.isEmpty()) {
-            buffer.writeBool("biomeListIsEmpty", true);
-        }
-        for (String dimensionId : dimensionList) {
-            buffer.writeString("dimensionList-" + dimensionId, dimensionId);
-        }
-        if (dimensionList.isEmpty()) {
-            buffer.writeBool("dimensionListIsEmpty", true);
-        }
+        buffer.writeStringList("biomeList", biomeList);
+        buffer.writeStringList("dimensionList", dimensionList);
     }
 
     public String getTargetBlockId() {
