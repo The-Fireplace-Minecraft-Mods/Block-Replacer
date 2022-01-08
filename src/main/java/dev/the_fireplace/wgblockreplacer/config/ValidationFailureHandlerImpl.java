@@ -22,9 +22,10 @@ public final class ValidationFailureHandlerImpl implements ValidationFailureHand
     @Override
     public void revalidate() {
         ConfigValidator validator = ConfigValidator.getInstance();
+        boolean isValid = validator.calculateValidity();
         Collection<String> validationErrors = validator.getValidationErrors();
 
-        if (!validator.calculateValidity() && ConfigAccess.getInstance().preventLoadOnFailure()) {
+        if (!isValid && ConfigAccess.getInstance().preventLoadOnFailure()) {
             WGBlockReplacer.getLogger().error(SimpleTranslationUtil.getStringTranslation("wgbr.improperly_configured"));
             ServerShutdownForcer.getInstance().shutdown(validationErrors);
             return;
