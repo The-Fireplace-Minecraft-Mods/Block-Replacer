@@ -11,7 +11,7 @@ import java.util.List;
 
 public final class ReplacementSetting implements Config
 {
-
+    public static final String SUBFOLDER = WGBRConstants.MODID + "_replacements";
     public static final short ABSOLUTE_MINIMUM_Y = (short) -4000;
     public static final short ABSOLUTE_MAXIMUM_Y = (short) 4000;
 
@@ -36,7 +36,7 @@ public final class ReplacementSetting implements Config
 
     @Override
     public String getSubfolderName() {
-        return WGBRConstants.MODID + "_replacements";
+        return SUBFOLDER;
     }
 
     @Override
