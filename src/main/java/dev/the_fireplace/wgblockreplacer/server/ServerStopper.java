@@ -11,8 +11,8 @@ import javax.inject.Inject;
 import java.util.Collection;
 
 @Implementation
-public final class ServerStopper implements ServerShutdownForcer {
-
+public final class ServerStopper implements ServerShutdownForcer
+{
     private final Translator translator;
 
     @Inject

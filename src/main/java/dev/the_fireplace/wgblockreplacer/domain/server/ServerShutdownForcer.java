@@ -4,6 +4,7 @@ import net.minecraft.server.MinecraftServer;
 
 import java.util.Collection;
 
-public interface ServerShutdownForcer {
+public interface ServerShutdownForcer
+{
     void shutdown(MinecraftServer server, Collection<String> messages);
 }

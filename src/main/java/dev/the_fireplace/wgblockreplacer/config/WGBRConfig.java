@@ -14,7 +14,8 @@ import javax.inject.Singleton;
 
 @Singleton
 @Implementation("dev.the_fireplace.wgblockreplacer.domain.config.ConfigValues")
-public final class WGBRConfig implements Config, ConfigValues {
+public final class WGBRConfig implements Config, ConfigValues
+{
     private final ConfigValues defaultConfig;
 
     private String currentReplacementKey;

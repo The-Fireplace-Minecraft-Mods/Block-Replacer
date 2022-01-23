@@ -4,6 +4,7 @@ import dev.the_fireplace.wgblockreplacer.config.ReplacementSetting;
 
 import java.util.List;
 
-public interface ReplacementSettings {
+public interface ReplacementSettings
+{
     List<ReplacementSetting> findBy(String dimensionId);
 }
