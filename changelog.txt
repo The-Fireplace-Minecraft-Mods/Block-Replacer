@@ -1,1 +1,1 @@
-Fixed error messages not appearing sometimes with invalid config crash
+Replacement now adds and removes tile entities if needed

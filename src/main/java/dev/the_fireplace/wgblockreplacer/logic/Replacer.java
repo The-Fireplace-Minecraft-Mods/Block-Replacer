@@ -4,6 +4,7 @@ import dev.the_fireplace.wgblockreplacer.api.config.ConfigAccess;
 import dev.the_fireplace.wgblockreplacer.api.world.ChunkReplacementData;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -74,7 +75,9 @@ public final class Replacer {
                 }
                 for (int storageY = 0; storageY < 16; storageY++) {
                     if (storage.get(storageX, storageY, storageZ).equals(fromState)) {
+                        int worldX = chunk.getPos().getXStart() + storageX;
                         int worldY = storage.getYLocation() + storageY;
+                        int worldZ = chunk.getPos().getZStart() + storageZ;
                         boolean withinConfiguredYRange = CONFIG.getMinYs()[configArrayIndex] <= worldY && worldY <= CONFIG.getMaxYs()[configArrayIndex];
                         int chanceMultiplier = CONFIG.getMultiplyChances()[configArrayIndex] ? worldY : 1;
                         double replacementChance = CONFIG.getReplaceChances()[configArrayIndex] * chanceMultiplier;
@@ -82,6 +85,15 @@ public final class Replacer {
                             && rand.nextDouble() <= replacementChance
                         ) {
                             storage.set(storageX, storageY, storageZ, toState);
+                            BlockPos worldBlockPos = new BlockPos(worldX, worldY, worldZ);
+                            world.removeTileEntity(worldBlockPos);
+                            if (toState.getBlock().hasTileEntity(toState)) {
+                                TileEntity tileEntity = toState.getBlock().createTileEntity(world, toState);
+                                if (tileEntity != null) {
+                                    tileEntity.setPos(worldBlockPos);
+                                    world.addTileEntity(tileEntity);
+                                }
+                            }
                             if (!replaced) {
                                 replaced = true;
                             }
